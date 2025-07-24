@@ -1,0 +1,56 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-I./include",
+      "-fpie",
+      "-fstack-protector",
+      "-Wall",
+      "-Wextra",
+      "-O2",
+      "-c",
+      "-o",
+      "build/exediff.c.o",
+      "src/exediff.c"
+    ],
+    "directory": "/home/dbgbgtf/Main/work/exediff",
+    "file": "/home/dbgbgtf/Main/work/exediff/src/exediff.c",
+    "output": "/home/dbgbgtf/Main/work/exediff/build/exediff.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-I./include",
+      "-fpie",
+      "-fstack-protector",
+      "-Wall",
+      "-Wextra",
+      "-O2",
+      "-c",
+      "-o",
+      "build/rx.c.o",
+      "src/rx.c"
+    ],
+    "directory": "/home/dbgbgtf/Main/work/exediff",
+    "file": "/home/dbgbgtf/Main/work/exediff/src/rx.c",
+    "output": "/home/dbgbgtf/Main/work/exediff/build/rx.c.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-I./include",
+      "-fpie",
+      "-fstack-protector",
+      "-Wall",
+      "-Wextra",
+      "-O2",
+      "-c",
+      "-o",
+      "build/disasm.c.o",
+      "src/disasm.c"
+    ],
+    "directory": "/home/dbgbgtf/Main/work/exediff",
+    "file": "/home/dbgbgtf/Main/work/exediff/src/disasm.c",
+    "output": "/home/dbgbgtf/Main/work/exediff/build/disasm.c.o"
+  }
+]
