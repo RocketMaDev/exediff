@@ -2,7 +2,14 @@
 #define ASM
 
 #include <stdint.h>
-uint8_t *assemble (char *code);
+
+typedef struct
+{
+  uint8_t *encode;
+  uint64_t len;
+} asm_code;
+
+asm_code assemble (char *code);
 
 void free_asm (uint8_t *encode);
 

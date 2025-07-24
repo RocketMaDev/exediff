@@ -16,7 +16,7 @@ get_rx (char *elf_path)
   int fd = -1;
   Elf *elf = NULL;
   GElf_Phdr phdr;
-  size_t phnum;
+  uint64_t phnum;
 
   if (elf_version (EV_CURRENT) == EV_NONE)
     PEXIT (ELF_INIT);
@@ -36,7 +36,7 @@ get_rx (char *elf_path)
     PEXIT (ELF_GETPHDRNUM);
 
   uint32_t rx_count = 0;
-  for (size_t i = 0; i < phnum; i++)
+  for (uint64_t i = 0; i < phnum; i++)
     {
       if (gelf_getphdr (elf, i, &phdr) != &phdr)
         PEXIT (GELF_GETPHDR);
@@ -54,7 +54,7 @@ get_rx (char *elf_path)
     PERROR ("malloc");
 
   uint32_t index = 0;
-  for (size_t i = 0; i < phnum; i++)
+  for (uint64_t i = 0; i < phnum; i++)
     {
       if (gelf_getphdr (elf, i, &phdr) != &phdr)
         PEXIT (GELF_GETPHDR);

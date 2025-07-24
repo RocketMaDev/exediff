@@ -3,6 +3,7 @@
 #include <capstone/capstone.h>
 #include <inttypes.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,7 +12,7 @@ disassemble (char *to_disasm, uint32_t code_len)
 {
   csh handle;
   cs_insn *insn;
-  size_t count;
+  uint64_t count;
 
   if (cs_open (CS_ARCH_X86, CS_MODE_64, &handle) != CS_ERR_OK)
     PEXIT (CS_OPEN);
