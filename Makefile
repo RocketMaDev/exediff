@@ -1,16 +1,17 @@
-TARGET := exediff
+TARGET := exediff exepatch
 
 SRC_DIR := ./src
 INC_DIR := ./include
 BUILD_DIR := ./build
 
-C_SRCS := $(shell find $(SRC_DIR) ! -name 'main.c' -name '*.c')
+C_SRCS := $(shell find $(SRC_DIR) ! -name 'exediff.c' ! -name 'exepatch.c' -name '*.c')
 TEST_SRCS := $(shell find $(TEST_DIR) -name '*.c')
 
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.c.o,$(C_SRCS))
 TEST_OBJS := $(patsubst $(TEST_DIR)/%.c,$(BUILD_DIR)/%.c.o,$(TEST_SRCS))
 
 EXEDIFF := $(BUILD_DIR)/exediff.c.o
+EXEPATCH := $(BUILD_DIR)/exepatch.c.o
 
 CC := gcc
 
@@ -30,9 +31,13 @@ else
 	LDFLAGS += -O2
 endif
 
-all: exediff
+all: exediff exepatch
 
 exediff: $(OBJS) $(EXEDIFF)
+	$(CC) $(LDFLAGS) $^ -o $@
+	mv -f $@ $(BUILD_DIR)
+
+exepatch: $(OBJS) $(EXEPATCH)
 	$(CC) $(LDFLAGS) $^ -o $@
 	mv -f $@ $(BUILD_DIR)
 

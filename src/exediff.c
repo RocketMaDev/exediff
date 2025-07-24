@@ -15,6 +15,6 @@ main ()
   // free_map_pages (&pages);
 
   char *code = "mov rax, 0x1234; push rbx; pop rcx; syscall";
-  uint8_t *encode = assemble (code);
+  asm_code *encode = assemble (code);
   free_asm (encode);
 }

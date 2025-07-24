@@ -3,20 +3,21 @@
 #include <keystone/keystone.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
-asm_code
+asm_code *
 assemble (char *code)
 {
   ks_engine *ks;
   ks_err err;
-  asm_code result;
+  asm_code *result = malloc (sizeof (asm_code));
   uint64_t count;
 
   err = ks_open (KS_ARCH_X86, KS_MODE_64, &ks);
   if (err != KS_ERR_OK)
     PEXIT (KS_OPEN);
 
-  if (ks_asm (ks, code, 0, &(result.encode), &(result.len), &count)
+  if (ks_asm (ks, code, 0, &(result->encode), &(result->len), &count)
       != KS_ERR_OK)
     PEXIT (FAIL_ASM);
 
@@ -25,7 +26,8 @@ assemble (char *code)
 }
 
 void
-free_asm (uint8_t *encode)
+free_asm (asm_code *encode)
 {
-  ks_free (encode);
+  ks_free (encode->encode);
+  free (encode);
 }

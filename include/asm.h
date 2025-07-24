@@ -9,8 +9,8 @@ typedef struct
   uint64_t len;
 } asm_code;
 
-asm_code assemble (char *code);
+asm_code *assemble (char *code);
 
-void free_asm (uint8_t *encode);
+void free_asm (asm_code *encode);
 
 #endif
