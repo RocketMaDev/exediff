@@ -25,4 +25,7 @@
 #define CS_OPEN "cs_open failed"
 #define FAIL_DISASM "failed to disasm"
 
+#define KS_OPEN "ks_open failed"
+#define FAIL_ASM "failed to asm"
+
 #endif

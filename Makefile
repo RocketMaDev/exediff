@@ -15,7 +15,7 @@ EXEDIFF := $(BUILD_DIR)/exediff.c.o
 CC := gcc
 
 CFLAGS := -fpie -fstack-protector -Wall -Wextra
-LDFLAGS := -z now -z noexecstack -fpie -fstack-protector -Wall -Wextra -lcapstone -lelf
+LDFLAGS := -z now -z noexecstack -fpie -fstack-protector -Wall -Wextra -lcapstone -lelf -lkeystone
 
 ifdef DEBUG
 	ifeq ($(DEBUG),1)

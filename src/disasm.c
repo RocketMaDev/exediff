@@ -3,7 +3,6 @@
 #include <capstone/capstone.h>
 #include <inttypes.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,8 +25,8 @@ disassemble (char *to_disasm, uint32_t code_len)
   for (; j < count; j++)
     {
       lines[j].addr = insn[j].address;
-      snprintf (lines[j].disasm_code, DISASM_CODE_LEN, "%s %s", insn[j].mnemonic,
-               insn[j].op_str);
+      snprintf (lines[j].disasm_code, DISASM_CODE_LEN, "%s %s",
+                insn[j].mnemonic, insn[j].op_str);
     }
 
   cs_close (&handle);

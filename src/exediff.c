@@ -1,3 +1,4 @@
+#include "asm.h"
 #include "disasm.h"
 #include "rx.h"
 #include <stdint.h>
@@ -6,9 +7,14 @@
 int
 main ()
 {
-  map_pages pages = get_rx ("/usr/bin/ls");
-  for (uint32_t i = 0; i < pages.page_num; i++)
-    printf ("%p 0x%x", (void *)pages.pages[i].page_adr, pages.pages[i].page_len);
+  // map_pages pages = get_rx ("/usr/bin/ls");
+  // for (uint32_t i = 0; i < pages.page_num; i++)
+  //   printf ("%p 0x%x", (void *)pages.pages[i].page_adr,
+  //           pages.pages[i].page_len);
+  //
+  // free_map_pages (&pages);
 
-  free_map_pages (&pages);
+  char *code = "mov rax, 0x1234; push rbx; pop rcx; syscall";
+  uint8_t *encode = assemble (code);
+  free_asm (encode);
 }
