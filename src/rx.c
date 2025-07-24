@@ -63,7 +63,8 @@ get_rx (char *elf_path)
           && (phdr.p_flags & PF_X))
         {
           result.pages[index].page_adr = phdr.p_vaddr;
-          result.pages[index].page_len = (uint32_t)phdr.p_memsz;
+          result.pages[index].page_len
+              = (uint32_t)phdr.p_memsz - (phdr.p_memsz % 0x1000) + 0x1000;
           index++;
         }
     }

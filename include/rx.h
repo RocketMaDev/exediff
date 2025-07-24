@@ -15,4 +15,8 @@ typedef struct
   uint32_t page_num;
 } map_pages;
 
+map_pages get_rx (char *elf_path);
+
+void free_map_pages (map_pages *pages);
+
 #endif
