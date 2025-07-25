@@ -6,7 +6,7 @@
 typedef struct
 {
   char *content;
-  uint32_t file_len;
+  uint8_t file_len;
 } mmap_cont;
 
 mmap_cont *mmap_file (char *filename);
