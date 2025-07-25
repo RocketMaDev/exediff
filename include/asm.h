@@ -3,14 +3,8 @@
 
 #include <stdint.h>
 
-typedef struct
-{
-  uint8_t *encode;
-  uint64_t len;
-} asm_code;
+uint64_t assemble (char *code, uint8_t **encode);
 
-asm_code *assemble (char *code);
-
-void free_asm (asm_code *encode);
+void free_asm (uint8_t *encode);
 
 #endif

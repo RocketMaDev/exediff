@@ -2,7 +2,7 @@
 #include "hunks.h"
 #include "log.h"
 #include "read_file.h"
-#include "resolve_bytes.h"
+#include "bytes_or_asm.h"
 #include "str.h"
 #include <fcntl.h>
 #include <linux/limits.h>
@@ -79,14 +79,14 @@ resolve_hunks (char *hunk_line)
       switch (line[0])
         {
         case ' ':
-          resolve_bytes (&line[1], &patch_from_len, patch_from);
-          resolve_bytes (&line[1], &patch_to_len, patch_to);
+          bytes_or_asm (&line[1], &patch_from_len, patch_from);
+          bytes_or_asm (&line[1], &patch_to_len, patch_to);
           break;
         case '-':
-          resolve_bytes (&line[1], &patch_from_len, patch_from);
+          bytes_or_asm (&line[1], &patch_from_len, patch_from);
           break;
         case '+':
-          resolve_bytes (&line[1], &patch_to_len, patch_to);
+          bytes_or_asm (&line[1], &patch_to_len, patch_to);
           break;
         default:
           PEXIT (INVALID_CTX_LEN);

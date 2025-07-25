@@ -4,7 +4,9 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 mmap_file *patch_to = NULL;
@@ -17,7 +19,7 @@ char *patch_to_name = NULL;
 bool
 init_patch (uint32_t filesz, char *file_name)
 {
-  patch_to = init_mmap_anoy (filesz);
+  patch_to = init_mmap_anoy (filesz + (0x2000 - (filesz % 0x1000)));
   patch_from = init_mmap_file (file_name);
 
   patch_to_name = file_name;
@@ -64,10 +66,12 @@ replace_hunk (uint64_t patch_from_addr, uint64_t patch_to_addr,
 void
 free_save_file ()
 {
-  copy_until_hunk(patch_to->file_len);
+  copy_until_hunk (patch_from->file_len - patch_from_idx + patch_to_idx);
 
-  int fd = open (patch_to_name, O_RDWR | O_CREAT);
-  write (fd, patch_to->file_buf, patch_to->file_len);
+  remove (patch_to_name);
+  int fd = open (patch_to_name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+  write (fd, patch_to->file_buf,
+         patch_from->file_len - patch_from_idx + patch_to_idx);
   close (fd);
   free_mmap (patch_to);
   free_mmap (patch_from);
