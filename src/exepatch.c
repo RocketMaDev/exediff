@@ -1,8 +1,8 @@
+#include "bytes_or_asm.h"
 #include "file_patch.h"
 #include "hunks.h"
 #include "log.h"
 #include "read_file.h"
-#include "bytes_or_asm.h"
 #include "str.h"
 #include <fcntl.h>
 #include <linux/limits.h>

@@ -16,7 +16,6 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
-
 /* The basic idea is to consider two vectors as similar if, when
    transforming the first vector into the second vector through a
    sequence of edits (inserts and deletes of one element each),
@@ -79,17 +78,17 @@
 
 /* Maximum value of type OFFSET.  */
 #ifndef OFFSET_MAX
-# define OFFSET_MAX \
-   ((((OFFSET) 1 << (sizeof (OFFSET) * CHAR_BIT - 2)) - 1) * 2 + 1)
+#define OFFSET_MAX                                                            \
+  ((((OFFSET)1 << (sizeof (OFFSET) * CHAR_BIT - 2)) - 1) * 2 + 1)
 #endif
 
 /* Default to no early abort.  */
 #ifndef EARLY_ABORT
-# define EARLY_ABORT(ctxt) false
+#define EARLY_ABORT(ctxt) false
 #endif
 
 #ifndef NOTE_ORDERED
-# define NOTE_ORDERED false
+#define NOTE_ORDERED false
 #endif
 
 // /* Suppress gcc's "...may be used before initialized" warnings,
@@ -108,11 +107,11 @@
  */
 struct context
 {
-  #ifdef ELEMENT
+#ifdef ELEMENT
   /* Vectors being compared.  */
   ELEMENT const *xvec;
   ELEMENT const *yvec;
-  #endif
+#endif
 
   /* Extra fields.  */
   EXTRA_CONTEXT_FIELDS
@@ -127,18 +126,18 @@ struct context
      matrix.  */
   OFFSET *bdiag;
 
-  #ifdef USE_HEURISTIC
+#ifdef USE_HEURISTIC
   /* This corresponds to the diff --speed-large-files flag.  With this
      heuristic, for vectors with a constant small density of changes,
      the algorithm is linear in the vector size.  */
   bool heuristic;
-  #endif
+#endif
 
   /* Edit scripts longer than this are too expensive to compute.  */
   OFFSET too_expensive;
 
-  /* Snakes bigger than this are considered "big".  */
-  #define SNAKE_LIMIT 20
+/* Snakes bigger than this are considered "big".  */
+#define SNAKE_LIMIT 20
 };
 
 struct partition
@@ -153,7 +152,6 @@ struct partition
   /* Likewise for high half.  */
   bool hi_minimal;
 };
-
 
 /* Find the midpoint of the shortest edit script for a specified portion
    of the two vectors.
@@ -186,21 +184,21 @@ static void
 diag (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool find_minimal,
       struct partition *part, struct context *ctxt)
 {
-  OFFSET *const fd = ctxt->fdiag;       /* Give the compiler a chance. */
-  OFFSET *const bd = ctxt->bdiag;       /* Additional help for the compiler. */
+  OFFSET *const fd = ctxt->fdiag; /* Give the compiler a chance. */
+  OFFSET *const bd = ctxt->bdiag; /* Additional help for the compiler. */
 #ifdef ELEMENT
   ELEMENT const *const xv = ctxt->xvec; /* Still more help for the compiler. */
   ELEMENT const *const yv = ctxt->yvec; /* And more and more . . . */
-  #define XREF_YREF_EQUAL(x,y)  EQUAL (xv[x], yv[y])
+#define XREF_YREF_EQUAL(x, y) EQUAL (xv[x], yv[y])
 #else
-  #define XREF_YREF_EQUAL(x,y)  XVECREF_YVECREF_EQUAL (ctxt, x, y)
+#define XREF_YREF_EQUAL(x, y) XVECREF_YVECREF_EQUAL (ctxt, x, y)
 #endif
-  const OFFSET dmin = xoff - ylim;      /* Minimum valid diagonal. */
-  const OFFSET dmax = xlim - yoff;      /* Maximum valid diagonal. */
-  const OFFSET fmid = xoff - yoff;      /* Center diagonal of top-down search. */
-  const OFFSET bmid = xlim - ylim;      /* Center diagonal of bottom-up search. */
+  const OFFSET dmin = xoff - ylim; /* Minimum valid diagonal. */
+  const OFFSET dmax = xlim - yoff; /* Maximum valid diagonal. */
+  const OFFSET fmid = xoff - yoff; /* Center diagonal of top-down search. */
+  const OFFSET bmid = xlim - ylim; /* Center diagonal of bottom-up search. */
   OFFSET fmin = fmid;
-  OFFSET fmax = fmid;           /* Limits of top-down search. */
+  OFFSET fmax = fmid; /* Limits of top-down search. */
   OFFSET bmin = bmid;
   OFFSET bmax = bmid;           /* Limits of bottom-up search. */
   OFFSET c;                     /* Cost. */
@@ -212,7 +210,7 @@ diag (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool find_minimal,
 
   for (c = 1;; ++c)
     {
-      OFFSET d;                 /* Active diagonal. */
+      OFFSET d; /* Active diagonal. */
       bool big_snake = false;
 
       /* Extend the top-down search by an edit step in each diagonal. */
@@ -233,8 +231,7 @@ diag (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool find_minimal,
           OFFSET x0 = tlo < thi ? thi : tlo + 1;
 
           for (x = x0, y = x0 - d;
-               x < xlim && y < ylim && XREF_YREF_EQUAL (x, y);
-               x++, y++)
+               x < xlim && y < ylim && XREF_YREF_EQUAL (x, y); x++, y++)
             continue;
           if (x - x0 > SNAKE_LIMIT)
             big_snake = true;
@@ -312,8 +309,7 @@ diag (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool find_minimal,
 
                 if (v > 12 * (c + (dd < 0 ? -dd : dd)))
                   {
-                    if (v > best
-                        && xoff + SNAKE_LIMIT <= x && x < xlim
+                    if (v > best && xoff + SNAKE_LIMIT <= x && x < xlim
                         && yoff + SNAKE_LIMIT <= y && y < ylim)
                       {
                         /* We have a good enough best diagonal; now insist
@@ -351,8 +347,7 @@ diag (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool find_minimal,
 
                 if (v > 12 * (c + (dd < 0 ? -dd : dd)))
                   {
-                    if (v > best
-                        && xoff < x && x <= xlim - SNAKE_LIMIT
+                    if (v > best && xoff < x && x <= xlim - SNAKE_LIMIT
                         && yoff < y && y <= ylim - SNAKE_LIMIT)
                       {
                         /* We have a good enough best diagonal; now insist
@@ -437,9 +432,8 @@ diag (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim, bool find_minimal,
           return;
         }
     }
-  #undef XREF_YREF_EQUAL
+#undef XREF_YREF_EQUAL
 }
-
 
 /* Compare in detail contiguous subsequences of the two vectors
    which are known, as a whole, to match each other.
@@ -464,9 +458,9 @@ compareseq (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim,
 #ifdef ELEMENT
   ELEMENT const *xv = ctxt->xvec; /* Help the compiler.  */
   ELEMENT const *yv = ctxt->yvec;
-  #define XREF_YREF_EQUAL(x,y)  EQUAL (xv[x], yv[y])
+#define XREF_YREF_EQUAL(x, y) EQUAL (xv[x], yv[y])
 #else
-  #define XREF_YREF_EQUAL(x,y)  XVECREF_YVECREF_EQUAL (ctxt, x, y)
+#define XREF_YREF_EQUAL(x, y) XVECREF_YVECREF_EQUAL (ctxt, x, y)
 #endif
 
   while (true)
@@ -479,7 +473,8 @@ compareseq (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim,
         }
 
       /* Slide up the top initial diagonal. */
-      while (xoff < xlim && yoff < ylim && XREF_YREF_EQUAL (xlim - 1, ylim - 1))
+      while (xoff < xlim && yoff < ylim
+             && XREF_YREF_EQUAL (xlim - 1, ylim - 1))
         {
           xlim--;
           ylim--;
@@ -524,38 +519,49 @@ compareseq (OFFSET xoff, OFFSET xlim, OFFSET yoff, OFFSET ylim,
           /* The second problem is smaller and the caller doesn't
              care about order, so do the second problem first to
              lessen recursion.  */
-          xoff1 = part.xmid; xlim1 = xlim;
-          yoff1 = part.ymid; ylim1 = ylim;
+          xoff1 = part.xmid;
+          xlim1 = xlim;
+          yoff1 = part.ymid;
+          ylim1 = ylim;
           find_minimal1 = part.hi_minimal;
 
-          xoff2 = xoff; xlim2 = part.xmid;
-          yoff2 = yoff; ylim2 = part.ymid;
+          xoff2 = xoff;
+          xlim2 = part.xmid;
+          yoff2 = yoff;
+          ylim2 = part.ymid;
           find_minimal2 = part.lo_minimal;
         }
       else
         {
-          xoff1 = xoff; xlim1 = part.xmid;
-          yoff1 = yoff; ylim1 = part.ymid;
+          xoff1 = xoff;
+          xlim1 = part.xmid;
+          yoff1 = yoff;
+          ylim1 = part.ymid;
           find_minimal1 = part.lo_minimal;
 
-          xoff2 = part.xmid; xlim2 = xlim;
-          yoff2 = part.ymid; ylim2 = ylim;
+          xoff2 = part.xmid;
+          xlim2 = xlim;
+          yoff2 = part.ymid;
+          ylim2 = ylim;
           find_minimal2 = part.hi_minimal;
         }
 
       /* Recurse to do one subproblem.  */
-      bool early = compareseq (xoff1, xlim1, yoff1, ylim1, find_minimal1, ctxt);
+      bool early
+          = compareseq (xoff1, xlim1, yoff1, ylim1, find_minimal1, ctxt);
       if (early)
         return early;
 
       /* Iterate to do the other subproblem.  */
-      xoff = xoff2; xlim = xlim2;
-      yoff = yoff2; ylim = ylim2;
+      xoff = xoff2;
+      xlim = xlim2;
+      yoff = yoff2;
+      ylim = ylim2;
       find_minimal = find_minimal2;
     }
 
   return false;
-  #undef XREF_YREF_EQUAL
+#undef XREF_YREF_EQUAL
 }
 
 // #if _GL_GNUC_PREREQ (4, 7)
