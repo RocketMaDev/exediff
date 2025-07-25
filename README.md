@@ -5,8 +5,8 @@ rx.c: get_rx (char *elf_path)
 disasm.c: disassemble (char *to_disasm)
 
 ```
---- FILE TIME 
-+++ FILE TIME
+--- FILE
++++ FILE
 @@ -0x1234,3 +4567,3 @@
  a3
 -c3

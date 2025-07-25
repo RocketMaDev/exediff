@@ -28,4 +28,11 @@
 #define KS_OPEN "ks_open failed"
 #define FAIL_ASM "failed to asm"
 
+#define INVALID_PATCH "invalid patch file"
+#define NO_TARGET_FILE "target file not speciefied"
+#define INVALID_ADDR "invalid addr"
+#define NO_TARGET_ADDR "target addr not speciefied"
+#define NO_PATCH_BYTE "target byte not speciefied"
+#define INVALID_PATCH_BYTE "invalid patch byte"
+
 #endif
