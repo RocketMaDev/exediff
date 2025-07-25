@@ -1,5 +1,6 @@
 #include "read_file.h"
 #include "log.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -16,14 +17,17 @@ init_fget (char *filename)
 uint64_t
 fget_line (char **line)
 {
-  uint64_t len;
-  if (getline (line, &len, fp) != -1)
-    return len;
-  return -1;
+  uint64_t len = 0;
+  uint64_t readsz;
+  readsz = getline (line, &len, fp);
+  if (readsz == (uint64_t)-1)
+    return -1;
+  (*line)[readsz - 1] = '\0';
+  return readsz;
 }
 
 void
-close_fget (char *line)
+free_fget (char *line)
 {
   free (line);
   fclose (fp);

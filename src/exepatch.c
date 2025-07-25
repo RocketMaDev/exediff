@@ -25,7 +25,7 @@ copy_orig_file (char *file_name, uint32_t filesz)
     PERROR ("malloc");
 
   sprintf (file_name_orig, "%s.orig", file_name);
-  int store = open (file_name_orig, O_RDWR | O_CREAT);
+  int store = open (file_name_orig, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (store == -1)
     PERROR ("open");
   free (file_name_orig);
@@ -79,25 +79,22 @@ resolve_hunks (char *hunk_line)
       switch (line[0])
         {
         case ' ':
-          resolve_bytes (line, &patch_from_len, patch_from);
-          resolve_bytes (line, &patch_to_len, patch_to);
+          resolve_bytes (&line[1], &patch_from_len, patch_from);
+          resolve_bytes (&line[1], &patch_to_len, patch_to);
           break;
         case '-':
-          resolve_bytes (line, &patch_from_len, patch_from);
+          resolve_bytes (&line[1], &patch_from_len, patch_from);
           break;
         case '+':
-          resolve_bytes (line, &patch_to_len, patch_to);
+          resolve_bytes (&line[1], &patch_to_len, patch_to);
           break;
+        default:
+          PEXIT (INVALID_CTX_LEN);
         }
 
       if (patch_from_len == patch_from_expected_len
           && patch_to_len == patch_to_expect_len)
         break;
-      else if (patch_from_len != patch_from_expected_len
-               && patch_to_len != patch_to_expect_len)
-        continue;
-      else
-        PEXIT (INVALID_CTX_LEN);
     }
 
   replace_hunk (patch_from_addr, patch_to_addr, patch_from, patch_to,
@@ -107,7 +104,7 @@ resolve_hunks (char *hunk_line)
 int
 main (int argc, char *argv[])
 {
-  init_fget (argv[0]);
+  init_fget (argv[1]);
 
   char *line = NULL;
   bool has_file = false;
@@ -117,12 +114,15 @@ main (int argc, char *argv[])
       if (start_with (line, "--- "))
         get_patch_to (line + strlen ("--- "), &has_file);
       else if (!has_file)
-        PEXIT (NO_TARGET_FILE);
+        PEXIT (NO_TARGET_FILE)
 
-      if (start_with (line, "+++ "))
+      else if (start_with (line, "+++ "))
         continue;
 
-      if (start_with (line, "@@ -"))
+      else if (start_with (line, "@@ -"))
         resolve_hunks (line + strlen ("@@ -"));
     }
+
+  free_save_file ();
+  free_fget (line);
 }

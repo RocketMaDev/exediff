@@ -13,6 +13,6 @@ mmap_file *init_mmap_file (char *filename);
 
 void free_mmap (mmap_file *file);
 
-mmap_file *mmap_anoy (uint64_t len);
+mmap_file *init_mmap_anoy (uint64_t len);
 
 #endif

@@ -1,8 +1,8 @@
 #ifndef FILE_PATCH
 #define FILE_PATCH
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 bool init_patch (uint32_t filesz, char *patch_to);
 

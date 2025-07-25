@@ -1,5 +1,5 @@
-#include "mmap.h"
 #include "log.h"
+#include "mmap_file.h"
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -22,11 +22,10 @@ init_mmap_file (char *filename)
   uint64_t filesz = st.st_size;
   mmap_file *result = malloc (sizeof (mmap_file));
   result->file_len = filesz;
-  uint8_t *file = mmap (NULL, result->file_len, PROT_READ | PROT_WRITE,
-                        MAP_PRIVATE, fd, 0);
-  result->file_buf = file;
+  result->file_buf = mmap (NULL, result->file_len, PROT_READ | PROT_WRITE,
+                           MAP_PRIVATE, fd, 0);
 
-  if (file == MAP_FAILED)
+  if (result->file_buf == MAP_FAILED)
     PERROR ("mmap");
 
   if (close (fd) != 0)
@@ -36,12 +35,14 @@ init_mmap_file (char *filename)
 }
 
 mmap_file *
-mmap_anoy (uint64_t len)
+init_mmap_anoy (uint64_t len)
 {
   mmap_file *result = malloc (sizeof (mmap_file));
   result->file_len = len;
-  result->file_buf
-      = mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, 0, 0);
+  result->file_buf = mmap (NULL, len, PROT_READ | PROT_WRITE,
+                           MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  if (result->file_buf == MAP_FAILED)
+    PERROR ("mmap");
 
   return result;
 }

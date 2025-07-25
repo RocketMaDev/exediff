@@ -8,15 +8,19 @@ resolve_bytes (char *line, uint32_t *idx, char bytes[])
 {
   char *end;
 
-  bytes[(*idx)++] = strtoll (line, &end, 0x10);
-  if (*end != ' ')
+  uint64_t byte = strtoll (line, &end, 0x10);
+  if (line == end)
     PEXIT (INVALID_PATCH_BYTE);
+  bytes[(*idx)++] = byte;
+
+  line += 3;
 
   while (*idx < LINE_LEN)
     {
-      bytes[(*idx)++] = strtoll (line, &end, 0x10);
+      uint64_t byte = strtoll (line, &end, 0x10);
       if (*end != ' ')
         break;
+      bytes[(*idx)++] = byte;
       line += 3;
     }
 }

@@ -1,6 +1,6 @@
 #include "file_patch.h"
 #include "log.h"
-#include "mmap.h"
+#include "mmap_file.h"
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -17,7 +17,7 @@ char *patch_to_name = NULL;
 bool
 init_patch (uint32_t filesz, char *file_name)
 {
-  patch_to = mmap_anoy (filesz + (0x2000 - (filesz % 0x1000)));
+  patch_to = init_mmap_anoy (filesz);
   patch_from = init_mmap_file (file_name);
 
   patch_to_name = file_name;
@@ -33,16 +33,30 @@ copy_until_hunk (uint32_t copy_until)
   patch_to_idx += copy_until;
 }
 
+#define SLIDE_WINDOW 3
+int32_t
+slide_match (uint64_t patch_from_addr, char patch_from_bytes[],
+             uint64_t patch_from_len)
+{
+  for (int32_t i = -SLIDE_WINDOW; i < SLIDE_WINDOW; i++)
+    {
+      if (memmem (patch_from->file_buf + patch_from_addr + i, patch_from_len,
+                  patch_from_bytes, patch_from_len))
+        return i;
+    }
+  PEXIT (NO_MATCH_FOUND);
+}
+
 void
 replace_hunk (uint64_t patch_from_addr, uint64_t patch_to_addr,
               char patch_from_bytes[], char patch_to_bytes[],
               uint64_t patch_from_len, uint64_t patch_to_len)
 {
-  if (!memmem (patch_from + patch_from_addr, patch_from_len, patch_from_bytes,
-               patch_from_len))
-    PEXIT (NO_MATCH_FOUND);
+  int32_t offset
+      = slide_match (patch_from_addr, patch_from_bytes, patch_from_len);
 
-  memcpy (patch_to + patch_to_addr, patch_to_bytes, patch_to_len);
+  memcpy (patch_to->file_buf + patch_to_addr + offset, patch_to_bytes,
+          patch_to_len);
   patch_from_idx += patch_from_len;
   patch_to_idx += patch_to_len;
 }
@@ -50,6 +64,8 @@ replace_hunk (uint64_t patch_from_addr, uint64_t patch_to_addr,
 void
 free_save_file ()
 {
+  copy_until_hunk(patch_to->file_len);
+
   int fd = open (patch_to_name, O_RDWR | O_CREAT);
   write (fd, patch_to->file_buf, patch_to->file_len);
   close (fd);
