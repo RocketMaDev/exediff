@@ -1,8 +1,8 @@
 #include "file_patch.h"
 #include "log.h"
 #include "mmap.h"
-#include "resolve_bytes.h"
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
@@ -14,14 +14,14 @@ uint32_t patch_from_idx = 0;
 
 char *patch_to_name = NULL;
 
-mmap_file *
+bool
 init_patch (uint32_t filesz, char *file_name)
 {
   patch_to = mmap_anoy (filesz + (0x2000 - (filesz % 0x1000)));
   patch_from = init_mmap_file (file_name);
 
   patch_to_name = file_name;
-  return patch_to;
+  return true;
 }
 
 void

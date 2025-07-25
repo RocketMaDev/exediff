@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 mmap_file *
-init_mmap_file(char *filename)
+init_mmap_file (char *filename)
 {
   int fd = open (filename, O_RDONLY);
   if (fd == -1)
@@ -23,7 +23,7 @@ init_mmap_file(char *filename)
   mmap_file *result = malloc (sizeof (mmap_file));
   result->file_len = filesz;
   uint8_t *file = mmap (NULL, result->file_len, PROT_READ | PROT_WRITE,
-                     MAP_PRIVATE, fd, 0);
+                        MAP_PRIVATE, fd, 0);
   result->file_buf = file;
 
   if (file == MAP_FAILED)

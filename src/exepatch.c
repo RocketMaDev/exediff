@@ -1,13 +1,12 @@
 #include "file_patch.h"
 #include "hunks.h"
 #include "log.h"
-#include "mmap.h"
 #include "read_file.h"
 #include "resolve_bytes.h"
 #include "str.h"
-#include <capstone/mips.h>
 #include <fcntl.h>
 #include <linux/limits.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -38,8 +37,8 @@ copy_orig_file (char *file_name, uint32_t filesz)
   close (store);
 }
 
-void
-get_patch_to (char *file_name, mmap_file **patch_to)
+bool
+get_patch_to (char *file_name, bool *has_file)
 {
   int fd = open (file_name, O_RDONLY);
   if (fd == -1)
@@ -53,9 +52,10 @@ get_patch_to (char *file_name, mmap_file **patch_to)
   uint64_t filesz = st.st_size;
   copy_orig_file (file_name, filesz);
 
-  if (*patch_to != NULL)
+  if (*has_file == true)
     free_save_file ();
-  *patch_to = init_patch (filesz, file_name);
+  *has_file = init_patch (filesz, file_name);
+  return has_file;
 }
 
 void
@@ -110,13 +110,13 @@ main (int argc, char *argv[])
   init_fget (argv[0]);
 
   char *line = NULL;
-  mmap_file *old_file = NULL;
+  bool has_file = false;
 
   while (fget_line (&line) != (uint64_t)-1)
     {
       if (start_with (line, "--- "))
-        get_patch_to (line + strlen ("--- "), &old_file);
-      else if (old_file == NULL)
+        get_patch_to (line + strlen ("--- "), &has_file);
+      else if (!has_file)
         PEXIT (NO_TARGET_FILE);
 
       if (start_with (line, "+++ "))

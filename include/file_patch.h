@@ -1,10 +1,10 @@
 #ifndef FILE_PATCH
 #define FILE_PATCH
 
-#include "mmap.h"
 #include <stdint.h>
+#include <stdbool.h>
 
-mmap_file *init_patch (uint32_t filesz, char *patch_to);
+bool init_patch (uint32_t filesz, char *patch_to);
 
 void copy_until_hunk (uint32_t copy_len);
 
