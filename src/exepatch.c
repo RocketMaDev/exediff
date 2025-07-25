@@ -39,7 +39,7 @@ copy_orig_file (char *file_name, uint32_t filesz)
 }
 
 void
-get_patch_to (char *file_name, mmap_cont **patch_to)
+get_patch_to (char *file_name, mmap_file **patch_to)
 {
   int fd = open (file_name, O_RDONLY);
   if (fd == -1)
@@ -110,7 +110,7 @@ main (int argc, char *argv[])
   init_fget (argv[0]);
 
   char *line = NULL;
-  mmap_cont *old_file = NULL;
+  mmap_file *old_file = NULL;
 
   while (fget_line (&line) != (uint64_t)-1)
     {

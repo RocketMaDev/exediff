@@ -7,18 +7,18 @@
 #include <string.h>
 #include <unistd.h>
 
-mmap_cont *patch_to = NULL;
-mmap_cont *patch_from = NULL;
+mmap_file *patch_to = NULL;
+mmap_file *patch_from = NULL;
 uint32_t patch_to_idx = 0;
 uint32_t patch_from_idx = 0;
 
 char *patch_to_name = NULL;
 
-mmap_cont *
+mmap_file *
 init_patch (uint32_t filesz, char *file_name)
 {
   patch_to = mmap_anoy (filesz + (0x2000 - (filesz % 0x1000)));
-  patch_from = mmap_file (file_name);
+  patch_from = init_mmap_file (file_name);
 
   patch_to_name = file_name;
   return patch_to;
@@ -27,8 +27,8 @@ init_patch (uint32_t filesz, char *file_name)
 void
 copy_until_hunk (uint32_t copy_until)
 {
-  memcpy (patch_to->content + patch_to_idx,
-          patch_from->content + patch_from_idx, copy_until - patch_to_idx);
+  memcpy (patch_to->file_buf + patch_to_idx,
+          patch_from->file_buf + patch_from_idx, copy_until - patch_to_idx);
   patch_from_idx += copy_until;
   patch_to_idx += copy_until;
 }
@@ -51,7 +51,7 @@ void
 free_save_file ()
 {
   int fd = open (patch_to_name, O_RDWR | O_CREAT);
-  write (fd, patch_to->content, patch_to->file_len);
+  write (fd, patch_to->file_buf, patch_to->file_len);
   close (fd);
   free_mmap (patch_to);
   free_mmap (patch_from);

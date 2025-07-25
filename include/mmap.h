@@ -5,14 +5,14 @@
 
 typedef struct
 {
-  char *content;
-  uint8_t file_len;
-} mmap_cont;
+  uint8_t *file_buf;
+  uint64_t file_len;
+} mmap_file;
 
-mmap_cont *mmap_file (char *filename);
+mmap_file *init_mmap_file (char *filename);
 
-void free_mmap (mmap_cont *file);
+void free_mmap (mmap_file *file);
 
-mmap_cont *mmap_anoy (uint32_t len);
+mmap_file *mmap_anoy (uint64_t len);
 
 #endif

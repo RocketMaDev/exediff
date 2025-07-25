@@ -4,7 +4,7 @@
 #include "mmap.h"
 #include <stdint.h>
 
-mmap_cont *init_patch (uint32_t filesz, char *patch_to);
+mmap_file *init_patch (uint32_t filesz, char *patch_to);
 
 void copy_until_hunk (uint32_t copy_len);
 

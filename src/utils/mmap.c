@@ -8,8 +8,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-mmap_cont *
-mmap_file (char *filename)
+mmap_file *
+init_mmap_file(char *filename)
 {
   int fd = open (filename, O_RDONLY);
   if (fd == -1)
@@ -20,11 +20,11 @@ mmap_file (char *filename)
     PERROR ("fstat");
 
   uint64_t filesz = st.st_size;
-  mmap_cont *result = malloc (sizeof (mmap_cont));
+  mmap_file *result = malloc (sizeof (mmap_file));
   result->file_len = filesz;
-  char *file = mmap (NULL, result->file_len, PROT_READ | PROT_WRITE,
+  uint8_t *file = mmap (NULL, result->file_len, PROT_READ | PROT_WRITE,
                      MAP_PRIVATE, fd, 0);
-  result->content = file;
+  result->file_buf = file;
 
   if (file == MAP_FAILED)
     PERROR ("mmap");
@@ -35,20 +35,20 @@ mmap_file (char *filename)
   return result;
 }
 
-mmap_cont *
-mmap_anoy (uint32_t len)
+mmap_file *
+mmap_anoy (uint64_t len)
 {
-  mmap_cont *result = malloc (sizeof (mmap_cont));
+  mmap_file *result = malloc (sizeof (mmap_file));
   result->file_len = len;
-  result->content
+  result->file_buf
       = mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, 0, 0);
 
   return result;
 }
 
 void
-free_mmap (mmap_cont *file)
+free_mmap (mmap_file *file)
 {
-  munmap (file->content, file->file_len);
+  munmap (file->file_buf, file->file_len);
   free (file);
 }
