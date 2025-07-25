@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -30,6 +31,17 @@ mmap_file (char *filename)
 
   if (close (fd) != 0)
     PERROR ("close");
+
+  return result;
+}
+
+mmap_cont *
+mmap_anoy (uint32_t len)
+{
+  mmap_cont *result = malloc (sizeof (mmap_cont));
+  result->file_len = len;
+  result->content
+      = mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, 0, 0);
 
   return result;
 }

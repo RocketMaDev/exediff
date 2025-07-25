@@ -32,7 +32,11 @@
 #define NO_TARGET_FILE "target file not speciefied"
 #define INVALID_ADDR "invalid addr"
 #define NO_TARGET_ADDR "target addr not speciefied"
+#define INVALID_CTX_LEN "invalid context len"
+
 #define NO_PATCH_BYTE "target byte not speciefied"
 #define INVALID_PATCH_BYTE "invalid patch byte"
+
+#define NO_MATCH_FOUND "no match found"
 
 #endif
