@@ -21,7 +21,7 @@ mmap_file (char *filename)
   uint64_t filesz = st.st_size;
   mmap_cont *result = malloc (sizeof (mmap_cont));
   result->file_len = filesz;
-  result->mem_len = filesz + (filesz % 0x1000) + 0x1000;
+  result->mem_len = filesz + (filesz % 0x1000);
 
   char *file = mmap (NULL, result->mem_len, PROT_READ | PROT_WRITE,
                      MAP_PRIVATE, fd, 0);
