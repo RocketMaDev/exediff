@@ -1,5 +1,5 @@
 #include "hunk.h"
-#include "../lib/minmax.h"
+#include "minmax.h"
 #include "list.h"
 #include <assert.h>
 #include <stdbool.h>

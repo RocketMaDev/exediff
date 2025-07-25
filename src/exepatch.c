@@ -62,8 +62,8 @@ void
 resolve_hunks (char *hunk_line)
 {
   uint32_t patch_from_addr = hunk_patch_from_addr (hunk_line);
-  uint32_t patch_to_addr = hunk_patch_to_addr (hunk_line);
   uint32_t patch_from_expected_len = hunk_patch_from_len (hunk_line);
+  uint32_t patch_to_addr = hunk_patch_to_addr (hunk_line);
   uint32_t patch_to_expect_len = hunk_patch_to_len (hunk_line);
 
   copy_until_hunk (patch_to_addr);

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 bool
 try_asm (char *line, uint32_t *idx, char bytes[])
@@ -20,22 +21,20 @@ try_asm (char *line, uint32_t *idx, char bytes[])
 bool
 try_bytes (char *line, uint32_t *idx, char bytes[])
 {
+  char *current = line;
   char *end;
 
-  uint64_t byte = strtoll (line, &end, 0x10);
-  if (line == end)
-    return false;
-  bytes[(*idx)++] = byte;
-  line += 3;
-
-  while (*idx < LINE_LEN)
+  do
     {
-      byte = strtoll (line, &end, 0x10);
-      if (*end != ' ')
-        break;
-      bytes[(*idx)++] = byte;
-      line += 3;
+      uint64_t value = strtoull (current, &end, 16);
+      if (current == end)
+        return false;
+
+      bytes[(*idx)++] = (char)value;
+      current = end;
     }
+  while ((current = strchr (current, ' ')) != NULL);
+
   return true;
 }
 
