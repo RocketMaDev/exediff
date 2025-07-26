@@ -26,11 +26,11 @@ bool init_patch(uint32_t filesz, char *file_name) {
     return true;
 }
 
-void copy_until_hunk(uint32_t copy_until) {
+void copy_until_hunk(uint64_t patch_from_addr, uint64_t patch_to_addr) {
     memcpy(patch_to->file_buf + patch_to_idx, patch_from->file_buf + patch_from_idx,
-           copy_until - patch_to_idx);
-    patch_from_idx = copy_until;
-    patch_to_idx = copy_until;
+           patch_to_addr - patch_to_idx);
+    patch_from_idx = patch_from_addr;
+    patch_to_idx = patch_to_addr;
 }
 
 #define SLIDE_WINDOW 3
@@ -54,7 +54,13 @@ void replace_hunk(uint64_t patch_from_addr, uint64_t patch_to_addr,
 }
 
 void free_save_file() {
-    copy_until_hunk(patch_from->file_len - patch_from_idx + patch_to_idx);
+    copy_until_hunk(patch_from_idx + patch_from->file_len - patch_from_idx,
+                    patch_from->file_len - patch_from_idx + patch_to_idx);
+
+    memcpy(patch_to->file_buf + patch_to_idx, patch_from->file_buf + patch_from_idx,
+           patch_from->file_len - patch_from_idx);
+    patch_from_idx += patch_from->file_len - patch_from_idx;
+    patch_to_idx += patch_from->file_len - patch_from_idx;
 
     remove(patch_to_name);
     int fd = open(patch_to_name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);

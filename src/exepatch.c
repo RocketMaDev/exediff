@@ -57,13 +57,13 @@ bool get_patch_to(char *file_name, bool *has_file) {
 
 void resolve_hunks(char *hunk_line) {
     uint32_t patch_from_addr = hunk_patch_from_addr(hunk_line);
-    uint32_t patch_from_expected_len = hunk_patch_from_len(hunk_line);
+    uint32_t patch_from_expect_len = hunk_patch_from_len(hunk_line);
     uint32_t patch_to_addr = hunk_patch_to_addr(hunk_line);
     uint32_t patch_to_expect_len = hunk_patch_to_len(hunk_line);
 
-    copy_until_hunk(patch_to_addr);
+    copy_until_hunk(patch_from_addr, patch_to_addr);
 
-    char patch_from[patch_from_expected_len * LINE_LEN];
+    char patch_from[patch_from_expect_len * LINE_LEN];
     char patch_to[patch_to_expect_len * LINE_LEN];
     uint32_t patch_from_len = 0;
     uint32_t patch_to_len = 0;
@@ -85,7 +85,7 @@ void resolve_hunks(char *hunk_line) {
                 PEXIT(INVALID_CTX_LEN);
         }
 
-        if (patch_from_len == patch_from_expected_len &&
+        if (patch_from_len == patch_from_expect_len &&
             patch_to_len == patch_to_expect_len)
             break;
     }
