@@ -1,6 +1,6 @@
 #ifndef HUNK_H
 #define HUNK_H
-#include "../include/mmap_file.h"
+#include "mmap_file.h"
 #include "list.h"
 #include <stdint.h>
 extern list *deleted;

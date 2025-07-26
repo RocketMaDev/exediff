@@ -1,0 +1,10 @@
+BasedOnStyle: Google
+AlignAfterOpenBracket: true
+ColumnLimit: 90
+IndentWidth: 4
+InsertBraces: false
+BreakBeforeBraces: Attach
+RemoveBracesLLVM: true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false

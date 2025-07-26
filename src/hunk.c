@@ -1,4 +1,5 @@
 #include "list.h"
+#include "mmap_file.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -6,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "hunk.h"
-#include "../lib/minmax.h"
+#include "minmax.h"
 
 list *deleted;
 list *inserted;
@@ -101,11 +102,13 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
 }
 
 void handle_delta(mmap_file *old_file, mmap_file *new_file) {
+    // clang-format off
     hunk_diff old = { .cursor = 0, .start = 0, .end = 0, .size = deleted->size,
         .arr = deleted->array, .file_buf = old_file->file_buf, .file_len = old_file->file_len };
     hunk_diff new = { .cursor = 0, .start = 0, .end = 0, .size = inserted->size,
         .arr = inserted->array, .file_buf = new_file->file_buf, .file_len = new_file->file_len };
-    long file_len_min = MIN(old.file_len, new.file_len);
+    // clang-format on
+    long file_len_min = min(old.file_len, new.file_len);
     long diff = 0;
     if (!old.size && !new.size)
         return;
