@@ -4,17 +4,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PERROR(s)                                                             \
-  {                                                                           \
-    perror (s);                                                               \
-    exit (-1);                                                                \
-  }
+#define PERROR(s)  \
+    {              \
+        perror(s); \
+        exit(-1);  \
+    }
 
-#define PEXIT(s)                                                              \
-  {                                                                           \
-    puts (s);                                                                 \
-    exit (-1);                                                                \
-  }
+#define PEXIT(s)  \
+    {             \
+        puts(s);  \
+        exit(-1); \
+    }
 
 #define ELF_INIT "ELF library initialization failed"
 #define ELF_BEGIN "ELF begin failed"

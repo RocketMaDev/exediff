@@ -1,30 +1,28 @@
 #include "asm.h"
-#include "log.h"
+
 #include <keystone/keystone.h>
 #include <stddef.h>
 #include <stdint.h>
 
-uint64_t
-assemble (char *code, uint8_t **encode)
-{
-  ks_engine *ks;
-  ks_err err;
-  uint64_t len;
-  uint64_t count;
+#include "log.h"
 
-  err = ks_open (KS_ARCH_X86, KS_MODE_64, &ks);
-  if (err != KS_ERR_OK)
-    PEXIT (KS_OPEN);
+uint64_t assemble(char *code, uint8_t **encode) {
+    ks_engine *ks;
+    ks_err err;
+    uint64_t len;
+    uint64_t count;
 
-  if (ks_asm (ks, code, 0, encode, &len, &count) != KS_ERR_OK)
-    len = -1;
+    err = ks_open(KS_ARCH_X86, KS_MODE_64, &ks);
+    if (err != KS_ERR_OK)
+        PEXIT(KS_OPEN);
 
-  ks_close (ks);
-  return len;
+    if (ks_asm(ks, code, 0, encode, &len, &count) != KS_ERR_OK)
+        len = -1;
+
+    ks_close(ks);
+    return len;
 }
 
-void
-free_asm (uint8_t *encode)
-{
-  ks_free (encode);
+void free_asm(uint8_t *encode) {
+    ks_free(encode);
 }

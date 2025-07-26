@@ -1,13 +1,15 @@
-#include "list.h"
-#include "mmap_file.h"
+#include "hunk.h"
+
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "hunk.h"
+
+#include "list.h"
 #include "minmax.h"
+#include "mmap_file.h"
 
 list *deleted;
 list *inserted;
@@ -39,7 +41,7 @@ static void print_hex_line(uint8_t *data, unsigned size, char prepend) {
     putchar(prepend);
     unsigned i = 0;
     while (i < size - 1) {
-        putchar(HEXSTR[data[i] >>  4]);
+        putchar(HEXSTR[data[i] >> 4]);
         putchar(HEXSTR[data[i] & 0xf]);
         if ((i++ & 0xf) == 0xf) {
             putchar('\n');
@@ -48,7 +50,7 @@ static void print_hex_line(uint8_t *data, unsigned size, char prepend) {
         }
         putchar(' ');
     }
-    putchar(HEXSTR[data[i] >>  4]);
+    putchar(HEXSTR[data[i] >> 4]);
     putchar(HEXSTR[data[i] & 0xf]);
     putchar('\n');
 }
@@ -73,8 +75,9 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
     new.end = min(new.end, new.size);
     old.cursor = old.start, new.cursor = new.start;
     while (old_reader < old.top || new_reader < new.top) {
-        while ((old.cursor >= old.end || old_reader != old.arr[old.cursor]) && (new.cursor >= new.end || new_reader != new.arr[new.cursor])
-               && old_reader < old.top && new_reader < new.top)
+        while ((old.cursor >= old.end || old_reader != old.arr[old.cursor]) &&
+               (new.cursor >= new.end || new_reader != new.arr[new.cursor]) &&
+               old_reader < old.top && new_reader < new.top)
             // the byte in old and new is the same
             old_reader++, new_reader++;
         // now the SHARED part is ready
@@ -95,7 +98,8 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
             new_reader = rolling;
         }
     }
-    // printf("%d %d %d %d %p %p %p %p\n", old.cursor, old.end, new.cursor, new.end, old_reader, old.top, new_reader, new.top);
+    // printf("%d %d %d %d %p %p %p %p\n", old.cursor, old.end, new.cursor, new.end,
+    // old_reader, old.top, new_reader, new.top);
     assert(old.cursor == old.end);
     assert(new.cursor == new.end);
     assert(new_reader == new.top || old_reader == old.top);
@@ -127,7 +131,7 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
         bool enlarged = false;
         if (old.cursor < old.size && old.arr[old.cursor] < old.top + 2 * CTX + 1) {
             old.top = min(old.file_len, max(old.top, old.arr[old.cursor++] + CTX + 1));
-            old.end = old.cursor; // exclude
+            old.end = old.cursor;  // exclude
             enlarged = true;
         }
         if (new.cursor < new.size && new.arr[new.cursor] < new.top + 2 * CTX + 1) {
@@ -162,7 +166,6 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             }
         }
     }
-    if (old.cursor >= old.size && new.cursor >= new.size) {
+    if (old.cursor >= old.size && new.cursor >= new.size)
         handle_normal(&old, &new);
-    }
 }
