@@ -61,57 +61,6 @@ static long max(long a, long b) {
 }
 #define CTX 3
 
-static void handle_edges(hunk_diff *old, hunk_diff *new) {
-    if (old->cursor >= old->size) {
-        assert(new->cursor < new->size);
-        while (new->arr[new->cursor] < new->file_len && new->cursor < new->size) {
-        
-        }
-        if (new->cursor == new->size)
-            return;
-        // print rest content in new
-        unsigned extra_pos_idx = new->cursor;
-        long *array = new->arr;
-        long extra_pos = array[extra_pos_idx];
-        long more = extra_pos - max(0, extra_pos - CTX);
-        long rolling = extra_pos;
-        
-        // assert rest changes to be sequential
-        for (unsigned i = extra_pos_idx + 1; i < new->size; i++)
-            if (++rolling != array[i]) {
-                puts("Inconsistent diff in new file end?");
-                exit(3);
-            }
-
-        // checked successfully
-        print_hunk_header(old->file_len, 0, extra_pos - more, new->size - new->cursor + more);
-        print_hex_line(new->file_buf + extra_pos - more, new->size - new->cursor + more, '+');
-        return;
-    }
-    assert(new->cursor >= new->size);
-    while (old->arr[old->cursor] < new->file_len && old->cursor < old->size) {
-
-    }
-    if (old->cursor == old->size)
-        return;
-    unsigned extra_pos_idx = old->cursor;
-    long *array = old->arr;
-    long extra_pos = array[extra_pos_idx];
-    long more = extra_pos - max(0, extra_pos - CTX);
-    long rolling = extra_pos;
-    
-    // assert rest changes to be sequential
-    for (unsigned i = extra_pos_idx + 1; i < old->size; i++)
-        if (++rolling != array[i]) {
-            puts("Inconsistent diff in old file end?");
-            exit(3);
-        }
-
-    // checked successfully
-    print_hunk_header(extra_pos - more, old->size - old->cursor + more, new->file_len, 0);
-    print_hex_line(old->file_buf + extra_pos - more, old->size - old->cursor + more, '-');
-}
-
 // print context here
 static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
     hunk_diff old = *_old;
@@ -119,9 +68,11 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
     print_hunk_header(old.bot, old.top - old.bot, new.bot, new.top - new.bot);
     long old_reader = old.bot, new_reader = new.bot;
     long old_part = old_reader, new_part = new_reader;
+    old.end = min(old.end, old.size);
+    new.end = min(new.end, new.size);
     old.cursor = old.start, new.cursor = new.start;
     while (old_reader < old.top || new_reader < new.top) {
-        while (old_reader != old.arr[old.cursor] && new_reader != new.arr[new.cursor]
+        while ((old.cursor >= old.end || old_reader != old.arr[old.cursor]) && (new.cursor >= new.end || new_reader != new.arr[new.cursor])
                && old_reader < old.top && new_reader < new.top)
             // the byte in old and new is the same
             old_reader++, new_reader++;
@@ -139,14 +90,14 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
             while (new.cursor < new.end && new.arr[new.cursor++] == rolling++);
             // now rolling is next byte not deleted
             print_hex_line(new.file_buf + new_reader, rolling - new_reader, '+');
-            new_part = new_reader = rolling;
+            old_part += rolling - new_reader;
+            new_reader = rolling;
         }
     }
     // printf("%d %d %d %d %p %p %p %p\n", old.cursor, old.end, new.cursor, new.end, old_reader, old.top, new_reader, new.top);
     assert(old.cursor == old.end);
     assert(new.cursor == new.end);
-    assert(old_reader == old.top);
-    assert(new_reader == new.top);
+    assert(new_reader == new.top || old_reader == old.top);
 }
 
 void handle_delta(mmap_file *old_file, mmap_file *new_file) {
@@ -208,7 +159,7 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             }
         }
     }
-    if (old.cursor == old.size && new.cursor == new.size) {
+    if (old.cursor >= old.size && new.cursor >= new.size) {
         handle_normal(&old, &new);
     }
 }

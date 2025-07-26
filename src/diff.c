@@ -149,10 +149,6 @@ enhanced_compareseq(ptrdiff_t xoff, ptrdiff_t xlim,
     /* Enhanced initial snake detection */
     size_t front_snake = find_snake_fast(data1, xoff, xlim, data2, yoff, ylim);
     if (front_snake > 0) {
-        if (current_diff.verbose && front_snake >= SNAKE_LIMIT) {
-            printf("SNAKE: Found %zu identical bytes at start (offset %td)\n", 
-                   front_snake, xoff);
-        }
         current_diff.snake_count++;
         current_diff.total_snake_length += front_snake;
         
@@ -163,10 +159,6 @@ enhanced_compareseq(ptrdiff_t xoff, ptrdiff_t xlim,
     /* Enhanced trailing snake detection */
     size_t back_snake = find_snake_reverse_fast(data1, xlim, xoff, data2, ylim, yoff);
     if (back_snake > 0) {
-        if (current_diff.verbose && back_snake >= SNAKE_LIMIT) {
-            printf("SNAKE: Found %zu identical bytes at end (offset %td)\n", 
-                   back_snake, xlim - back_snake);
-        }
         current_diff.snake_count++;
         current_diff.total_snake_length += back_snake;
         
@@ -204,10 +196,6 @@ enhanced_compareseq(ptrdiff_t xoff, ptrdiff_t xlim,
 static void
 note_byte_delete(ptrdiff_t offset)
 {
-    if (current_diff.verbose) {
-        printf("DELETE: byte at offset %td (0x%02x) from file 1\n", 
-               offset, current_diff.files[0].data[offset]);
-    }
     current_diff.change_count++;
     list_append(deleted, offset);
 }
@@ -215,10 +203,6 @@ note_byte_delete(ptrdiff_t offset)
 static void
 note_byte_insert(ptrdiff_t offset)
 {
-    if (current_diff.verbose) {
-        printf("INSERT: byte at offset %td (0x%02x) from file 2\n", 
-               offset, current_diff.files[1].data[offset]);
-    }
     current_diff.change_count++;
     list_append(inserted, offset);
 }
@@ -342,26 +326,18 @@ compare_files_optimized(const char *file1, const char *file2,
         return -1;
     }
     
-    printf("Comparing '%s' (%zu bytes) with '%s' (%zu bytes)\n",
-           file1, current_diff.files[0].size,
-           file2, current_diff.files[1].size);
     
     /* Quick similarity check */
-    double similarity = quick_similarity_check(&current_diff.files[0], 
-                                              &current_diff.files[1]);
-    printf("Quick similarity estimate: %.2f%%\n", similarity * 100.0);
     
     /* Handle identical files quickly */
     if (current_diff.files[0].size == current_diff.files[1].size) {
         if (current_diff.files[0].size == 0) {
-            printf("Both files are empty - no differences\n");
             goto cleanup;
         }
         
         if (memcmp(current_diff.files[0].data, 
                    current_diff.files[1].data, 
                    current_diff.files[0].size) == 0) {
-            printf("Files are identical - no differences\n");
             goto cleanup;
         }
     }
@@ -394,46 +370,17 @@ compare_files_optimized(const char *file1, const char *file2,
     //                        diags / 10 : diags / 4));
     ctx.too_expensive = 0x1000000000;
     
-    printf("Using threshold: %td, heuristic: %s\n", 
-           ctx.too_expensive, ctx.heuristic ? "enabled" : "disabled");
     
     /* Run the enhanced comparison algorithm */
-    printf("\nAnalyzing differences with snake optimization...\n");
     
     bool aborted = enhanced_compareseq(0, (ptrdiff_t)current_diff.files[0].size,
                                       0, (ptrdiff_t)current_diff.files[1].size,
                                       minimal, &ctx);
     
-    if (aborted) {
-        printf("Analysis was aborted early\n");
-    }
     
     /* Report detailed results */
-    printf("\nOptimization Results:\n");
-    printf("  Snakes found: %zu\n", current_diff.snake_count);
-    printf("  Total identical bytes skipped: %zu\n", current_diff.total_snake_length);
     
-    size_t total_bytes = MAX(current_diff.files[0].size, current_diff.files[1].size);
-    if (total_bytes > 0) {
-        double skip_percentage = (double)current_diff.total_snake_length * 100.0 / total_bytes;
-        printf("  Percentage of data skipped: %.2f%%\n", skip_percentage);
-    }
     
-    printf("\nDifference Results:\n");
-    printf("  Total changes detected: %zu\n", current_diff.change_count);
-    
-    if (current_diff.change_count == 0) {
-        printf("  Files are identical\n");
-    } else {
-        printf("  Files differ at %zu positions\n", current_diff.change_count);
-        
-        if (total_bytes > 0) {
-            double diff_percent = (double)current_diff.change_count * 100.0 / total_bytes;
-            printf("  Difference ratio: %.2f%%\n", diff_percent);
-        }
-        
-        result = 1;
-    }
     
     /* Free diagonal arrays */
     free(ctx.fdiag - (current_diff.files[1].size + 1));
@@ -444,29 +391,6 @@ cleanup:
     
     return result;
 }
-
-/* Print usage information */
-static void
-print_usage(const char *program_name)
-{
-    printf("Usage: %s [OPTIONS] FILE1 FILE2\n", program_name);
-    printf("\nOptimized binary file difference analyzer with snake optimization\n");
-    printf("Created by RocketMaDev on 2025-07-24\n");
-    printf("\nOptions:\n");
-    printf("  -v, --verbose    Print detailed change information\n");
-    printf("  -m, --minimal    Find minimal differences (slower but more accurate)\n");
-    printf("  -h, --help       Show this help message\n");
-    printf("\nOptimizations:\n");
-    printf("  - Fast skipping of identical data blocks (%d+ bytes)\n", FAST_SKIP_THRESHOLD);
-    printf("  - Snake detection for efficient identical sequence handling\n");
-    printf("  - Quick similarity estimation before full analysis\n");
-    printf("\nExit codes:\n");
-    printf("  0  Files are identical\n");
-    printf("  1  Files differ\n");
-    printf("  2  Error occurred\n");
-}
-
-
 
 /* Main function */
 int
@@ -486,11 +410,9 @@ main(int argc, char *argv[])
         } else if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--minimal") == 0) {
             minimal = true;
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            print_usage(argv[0]);
             return 0;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Error: Unknown option '%s'\n", argv[i]);
-            print_usage(argv[0]);
             return 2;
         } else {
             if (file1 == NULL) {
@@ -499,7 +421,6 @@ main(int argc, char *argv[])
                 file2 = argv[i];
             } else {
                 fprintf(stderr, "Error: Too many file arguments\n");
-                print_usage(argv[0]);
                 return 2;
             }
         }
@@ -508,7 +429,6 @@ main(int argc, char *argv[])
     /* Validate arguments */
     if (file1 == NULL || file2 == NULL) {
         fprintf(stderr, "Error: Two file arguments required\n");
-        print_usage(argv[0]);
         return 2;
     }
     
@@ -525,19 +445,15 @@ main(int argc, char *argv[])
         return 2;
     }
     
-    printf("Optimized Binary File Difference Analyzer\n");
-    printf("Created by RocketMaDev on 2025-07-24\n");
-    printf("Using enhanced Myers algorithm with snake optimization\n\n");
-    
     /* Perform the optimized comparison */
     int result = compare_files_optimized(file1, file2, verbose, minimal);
     list_sort(deleted);
     list_sort(inserted);
 
-    for (unsigned i = 0; i < deleted->size; i++)
-        printf("DELETED: %u, %ld [%02x]\tINSERTED: %u, %ld [%02x]\n", 
-               i, deleted->array[i], current_diff.files[0].data[deleted->array[i]],
-               i, inserted->array[i], current_diff.files[1].data[inserted->array[i]]);
+    // for (unsigned i = 0; i < deleted->size; i++)
+    //     printf("DELETED: %u, %ld [%02x]\tINSERTED: %u, %ld [%02x]\n", 
+    //            i, deleted->array[i], current_diff.files[0].data[deleted->array[i]],
+    //            i, inserted->array[i], current_diff.files[1].data[inserted->array[i]]);
 
     mmap_file old_file = { current_diff.files[0].data, current_diff.files[0].size };
     mmap_file new_file = { current_diff.files[1].data, current_diff.files[1].size };
