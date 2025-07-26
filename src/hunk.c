@@ -84,14 +84,16 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
         print_hex_line(old.file_buf + old_part, old_reader - old_part, ' ');
         if (old.cursor < old.end && old_reader == old.arr[old.cursor]) {
             long rolling = old.arr[old.cursor++] + 1;
-            while (old.cursor < old.end && old.arr[old.cursor++] == rolling++);
+            while (old.cursor < old.end && old.arr[old.cursor] == rolling)
+                old.cursor++, rolling++;
             // now rolling is next byte not deleted
             print_hex_line(old.file_buf + old_reader, rolling - old_reader, '-');
             old_part = old_reader = rolling;
         }
         if (new.cursor < new.end && new_reader == new.arr[new.cursor]) {
             long rolling = new.arr[new.cursor++] + 1;
-            while (new.cursor < new.end && new.arr[new.cursor++] == rolling++);
+            while (new.cursor < new.end && new.arr[new.cursor] == rolling)
+                new.cursor++, rolling++;
             // now rolling is next byte not deleted
             print_hex_line(new.file_buf + new_reader, rolling - new_reader, '+');
             old_part = old_reader;
@@ -102,7 +104,8 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
     // old_reader, old.top, new_reader, new.top);
     assert(old.cursor == old.end);
     assert(new.cursor == new.end);
-    assert(new_reader == new.top || old_reader == old.top);
+    assert(new_reader == new.top);
+    assert(old_reader == old.top);
 }
 
 void handle_delta(mmap_file *old_file, mmap_file *new_file) {
@@ -145,6 +148,14 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
                                    new.top - new.bot - new.end + new.start);
             old.top = old.bot + shared_size + old.end - old.start;
             new.top = new.bot + shared_size + new.end - new.start;
+            if (old.top > old.file_len || new.top > new.file_len) {
+                old.top = min(old.top, old.file_len);
+                new.top = min(new.top, new.file_len);
+                shared_size = max(old.top - old.bot - old.end + old.start,
+                                  new.top - new.bot - new.end + new.start);
+                old.top = old.bot + shared_size + old.end - old.start;
+                new.top = new.bot + shared_size + new.end - new.start;
+            }
             handle_normal(&old, &new);
             old.start = old.end, new.start = new.end;
             if (old.arr[old.cursor] < new.arr[new.cursor]) {
@@ -171,6 +182,10 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             }
         }
     }
-    if (old.cursor >= old.size && new.cursor >= new.size)
+    if (old.cursor >= old.size && new.cursor >= new.size) {
+        long shared_size = max(old.top - old.bot - old.end + old.start,
+                               new.top - new.bot - new.end + new.start);
+        old.top = old.bot + shared_size + old.end - old.start;
         handle_normal(&old, &new);
+    }
 }

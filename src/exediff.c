@@ -403,13 +403,15 @@ int main(int argc, char *argv[]) {
     list_sort(deleted);
     list_sort(inserted);
 
-    // for (unsigned i = 0; i < deleted->size; i++)
-    //     printf("DELETED: %u, %ld [%02x]\tINSERTED: %u, %ld [%02x]\n",
+    // for (unsigned i = 0; i < inserted->size; i++)
+    //     printf("DELETED: %u, %lx [%02x]\tINSERTED: %u, %lx [%02x]\n",
     //            i, deleted->array[i], current_diff.files[0].data[deleted->array[i]],
     //            i, inserted->array[i], current_diff.files[1].data[inserted->array[i]]);
 
     mmap_file old_file = {current_diff.files[0].data, current_diff.files[0].size};
     mmap_file new_file = {current_diff.files[1].data, current_diff.files[1].size};
+    printf("--- %s\n", current_diff.files[0].name);
+    printf("+++ %s\n", current_diff.files[1].name);
     handle_delta(&old_file, &new_file);
 
     if (result < 0)
