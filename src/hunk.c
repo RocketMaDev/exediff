@@ -91,8 +91,8 @@ static void handle_one_side(hunk_diff *blk_avail, hunk_diff *blk_over, bool is_n
             print_hunk_header(blk.bot, blk.top - blk.bot, blk_over->bot,
                               blk_over->top - blk_over->bot);
         else
-            print_hunk_header(blk_over->bot, blk_over->top - blk_over->bot,
-                              blk.bot, blk.top - blk.bot);
+            print_hunk_header(blk_over->bot, blk_over->top - blk_over->bot, blk.bot,
+                              blk.top - blk.bot);
         print_hex_line(blk.file_buf + blk.bot, blk.arr[blk.start] - blk.bot, ' ');
         print_hex_line(blk.file_buf + diff_point, length, prepend);
         diff_point += length;
@@ -205,31 +205,21 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             } else if (new.cursor >= new.size) {
                 handle_one_side(&old, &new, true);
                 return;
-            } else if (new.cursor >= new.size ||
-                (old.cursor < old.size && old.arr[old.cursor] < new.arr[new.cursor])) {
+                // not absolute offset, but relative offset! $ - top is needed
+            } else if (old.arr[old.cursor] - old.top <= new.arr[new.cursor] - new.top) {
                 old.bot = old.arr[old.cursor++] - CTX;
                 diff = old.bot - old.top;
                 old.end = old.cursor;
                 old.top = min(old.file_len, old.bot + 2 * CTX + 1);
                 new.bot = min(new.file_len, new.top + diff);
                 new.top = min(new.file_len, new.bot + 2 * CTX + 1);
-                // clang-format off
-            } else if (old.cursor >= old.size ||                     // we don't need to check whether
-                       old.arr[old.cursor] > new.arr[new.cursor]) {  // old.cursor is valid as we've checked
-                // clang-format on
+            } else if (old.arr[old.cursor] - old.top > new.arr[new.cursor] - new.top) {
                 new.bot = new.arr[new.cursor++] - CTX;
                 diff = new.bot - new.top;
                 new.end = new.cursor;
                 new.top = min(new.file_len, new.bot + 2 * CTX + 1);
                 old.bot = min(old.file_len, old.top + diff);
                 old.top = min(old.file_len, old.bot + 2 * CTX + 1);
-            } else {
-                assert(old.cursor == new.cursor);
-                old.bot = new.bot = old.arr[old.cursor++] - CTX;
-                new.cursor++;
-                old.end = old.cursor, new.end = new.cursor;
-                old.top = min(old.file_len, old.bot + 2 * CTX + 1);
-                new.top = min(new.file_len, old.bot + 2 * CTX + 1);
             }
         }
     }
@@ -237,6 +227,15 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
         long shared_size = max(old.top - old.bot - old.end + old.start,
                                new.top - new.bot - new.end + new.start);
         old.top = old.bot + shared_size + old.end - old.start;
+        new.top = new.bot + shared_size + new.end - new.start;
+        if (old.top > old.file_len || new.top > new.file_len) {
+            old.top = min(old.top, old.file_len);
+            new.top = min(new.top, new.file_len);
+            shared_size = max(old.top - old.bot - old.end + old.start,
+                              new.top - new.bot - new.end + new.start);
+            old.top = old.bot + shared_size + old.end - old.start;
+            new.top = new.bot + shared_size + new.end - new.start;
+        }
         handle_normal(&old, &new);
     }
 }
