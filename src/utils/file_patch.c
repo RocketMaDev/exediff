@@ -31,8 +31,8 @@ copy_until_hunk (uint32_t copy_until)
 {
   memcpy (patch_to->file_buf + patch_to_idx,
           patch_from->file_buf + patch_from_idx, copy_until - patch_to_idx);
-  patch_from_idx += copy_until;
-  patch_to_idx += copy_until;
+  patch_from_idx = copy_until;
+  patch_to_idx = copy_until;
 }
 
 #define SLIDE_WINDOW 3
