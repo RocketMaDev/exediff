@@ -74,7 +74,7 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
     old.end = min(old.end, old.size);
     new.end = min(new.end, new.size);
     old.cursor = old.start, new.cursor = new.start;
-    while (old_reader < old.top || new_reader < new.top) {
+    while (old_reader < old.top && new_reader < new.top) {
         while ((old.cursor >= old.end || old_reader != old.arr[old.cursor]) &&
                (new.cursor >= new.end || new_reader != new.arr[new.cursor]) &&
                old_reader < old.top && new_reader < new.top)
@@ -94,7 +94,7 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
             while (new.cursor < new.end && new.arr[new.cursor++] == rolling++);
             // now rolling is next byte not deleted
             print_hex_line(new.file_buf + new_reader, rolling - new_reader, '+');
-            old_part += rolling - new_reader;
+            old_part = old_reader;
             new_reader = rolling;
         }
     }
@@ -140,6 +140,11 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             enlarged = true;
         }
         if (!enlarged) {
+            // adjust top
+            long shared_size = max(old.top - old.bot - old.end + old.start,
+                                   new.top - new.bot - new.end + new.start);
+            old.top = old.bot + shared_size + old.end - old.start;
+            new.top = new.bot + shared_size + new.end - new.start;
             handle_normal(&old, &new);
             old.start = old.end, new.start = new.end;
             if (old.arr[old.cursor] < new.arr[new.cursor]) {
