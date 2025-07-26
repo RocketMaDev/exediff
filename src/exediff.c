@@ -57,8 +57,8 @@ static struct diff_context current_diff;
 static void note_byte_insert(ptrdiff_t offset);
 static void note_byte_delete(ptrdiff_t offset);
 
-#include "../lib/diffseq.h"
-#include "../lib/minmax.h"
+#include "diffseq.h"
+#include "minmax.h"
 
 /* Enhanced snake detection function */
 static size_t find_snake_fast(const uint8_t *data1, size_t pos1, size_t limit1,

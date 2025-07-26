@@ -76,6 +76,7 @@
      #include "minmax.h"
  */
 
+#include "minmax.h"
 /* Maximum value of type OFFSET.  */
 #ifndef OFFSET_MAX
 #define OFFSET_MAX ((((OFFSET)1 << (sizeof(OFFSET) * CHAR_BIT - 2)) - 1) * 2 + 1)

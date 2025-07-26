@@ -23,6 +23,7 @@ pkg_check_modules(ELF REQUIRED libelf)
 pkg_check_modules(KEYSTONE REQUIRED keystone)
 
 # 4. 定义路径变量（与 Makefile 对应）
+set (CMAKE_SOURCE_DIR .)
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INC_DIR ${CMAKE_SOURCE_DIR}/include)
 set(BUILD_DIR ${CMAKE_BINARY_DIR}/build)   # 实际用不到，CMake 自动生成
