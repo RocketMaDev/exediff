@@ -64,6 +64,42 @@ static long max(long a, long b) {
 }
 #define CTX 3
 
+// Test the length of longest continuous interger string in array.
+static inline long continuous_len(unsigned size, unsigned idx, long *array) {
+    if (idx >= size)
+        return 0;
+    register long *ptr = array + idx + 1;
+    register long *end = array + size;
+    while (ptr < end && *ptr - *(ptr - 1) == 1) ptr++;
+    return ptr - (array + idx);
+}
+
+static void handle_one_side(hunk_diff *blk_avail, hunk_diff *blk_over, bool is_new_over) {
+    char prepend = is_new_over ? '-' : '+';
+    hunk_diff blk = *blk_avail;
+    while (blk.cursor < blk.size) {
+        blk.start = blk.cursor;
+        long diff_point = blk.arr[blk.cursor];
+        blk.bot = max(0, diff_point - CTX);
+        long diff = blk.bot - blk.top;
+        long length = continuous_len(blk.size, blk.cursor, blk.arr);
+        blk.cursor += length;
+        blk.top = min(blk.bot + 2 * CTX + 1 + length, blk.file_len);
+        blk_over->bot = blk_over->top + diff;
+        blk_over->top = min(blk_over->top + 2 * CTX + 1, blk_over->file_len);
+        if (is_new_over)
+            print_hunk_header(blk.bot, blk.top - blk.bot, blk_over->bot,
+                              blk_over->top - blk_over->bot);
+        else
+            print_hunk_header(blk_over->bot, blk_over->top - blk_over->bot,
+                              blk.bot, blk.top - blk.bot);
+        print_hex_line(blk.file_buf + blk.bot, blk.arr[blk.start] - blk.bot, ' ');
+        print_hex_line(blk.file_buf + diff_point, length, prepend);
+        diff_point += length;
+        print_hex_line(blk.file_buf + diff_point, blk.top - diff_point, ' ');
+    }
+}
+
 // print context here
 static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
     hunk_diff old = *_old;
@@ -83,21 +119,18 @@ static void handle_normal(hunk_diff *_old, hunk_diff *_new) {
         // now the SHARED part is ready
         print_hex_line(old.file_buf + old_part, old_reader - old_part, ' ');
         if (old.cursor < old.end && old_reader == old.arr[old.cursor]) {
-            long rolling = old.arr[old.cursor++] + 1;
-            while (old.cursor < old.end && old.arr[old.cursor] == rolling)
-                old.cursor++, rolling++;
-            // now rolling is next byte not deleted
-            print_hex_line(old.file_buf + old_reader, rolling - old_reader, '-');
-            old_part = old_reader = rolling;
+            long length = continuous_len(old.end, old.cursor, old.arr);
+            print_hex_line(old.file_buf + old_reader, length, '-');
+            old.cursor += length;
+            old_reader += length;
+            old_part = old_reader;
         }
         if (new.cursor < new.end && new_reader == new.arr[new.cursor]) {
-            long rolling = new.arr[new.cursor++] + 1;
-            while (new.cursor < new.end && new.arr[new.cursor] == rolling)
-                new.cursor++, rolling++;
-            // now rolling is next byte not deleted
-            print_hex_line(new.file_buf + new_reader, rolling - new_reader, '+');
+            long length = continuous_len(new.end, new.cursor, new.arr);
+            print_hex_line(new.file_buf + new_reader, length, '+');
+            new.cursor += length;
+            new_reader += length;
             old_part = old_reader;
-            new_reader = rolling;
         }
     }
     // printf("%d %d %d %d %p %p %p %p\n", old.cursor, old.end, new.cursor, new.end,
@@ -119,6 +152,13 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
     long diff = 0;
     if (!old.size && !new.size)
         return;
+    else if (!old.size) {
+        handle_one_side(&new, &old, false);
+        return;
+    } else if (!new.size) {
+        handle_one_side(&old, &new, true);
+        return;
+    }
     // if deleted size or inserted size is 0, then arr[1] == 0 is implied
     if (old.arr[old.cursor] <= new.arr[new.cursor]) {
         if (old.arr[old.cursor] == new.arr[new.cursor])
@@ -159,7 +199,13 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             handle_normal(&old, &new);
             old.start = old.end, new.start = new.end;
             assert(old.cursor < old.size || new.cursor < new.size);
-            if (new.cursor >= new.size ||
+            if (old.cursor >= old.size) {
+                handle_one_side(&new, &old, false);
+                return;
+            } else if (new.cursor >= new.size) {
+                handle_one_side(&old, &new, true);
+                return;
+            } else if (new.cursor >= new.size ||
                 (old.cursor < old.size && old.arr[old.cursor] < new.arr[new.cursor])) {
                 old.bot = old.arr[old.cursor++] - CTX;
                 diff = old.bot - old.top;
