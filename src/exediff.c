@@ -352,6 +352,7 @@ cleanup:
     return result;
 }
 
+bool color_enabled = false;
 /* Main function */
 int main(int argc, char *argv[]) {
     bool verbose = false;
@@ -369,6 +370,8 @@ int main(int argc, char *argv[]) {
             minimal = true;
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             return 0;
+        } else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--color") == 0) {
+            color_enabled = true;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Error: Unknown option '%s'\n", argv[i]);
             return 2;
@@ -413,8 +416,12 @@ int main(int argc, char *argv[]) {
 
     mmap_file old_file = {current_diff.files[0].data, current_diff.files[0].size};
     mmap_file new_file = {current_diff.files[1].data, current_diff.files[1].size};
+    if (color_enabled)
+        printf("\x1b[1m");
     printf("--- %s\n", current_diff.files[0].name);
     printf("+++ %s\n", current_diff.files[1].name);
+    if (color_enabled)
+        printf("\x1b[0m");
     handle_delta(&old_file, &new_file);
 
     if (result < 0)

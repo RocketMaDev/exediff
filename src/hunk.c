@@ -13,6 +13,7 @@
 
 list *deleted;
 list *inserted;
+extern bool color_enabled;
 
 typedef struct {
     // offset cursors
@@ -31,13 +32,21 @@ typedef struct {
 } hunk_diff;
 
 static void print_hunk_header(long old_pos, long old_len, long new_pos, long new_len) {
+    if (color_enabled)
+        printf("\x1b[36m");
     printf("@@ -%#lx,%ld +%#lx,%ld @@\n", old_pos, old_len, new_pos, new_len);
+    if (color_enabled)
+        printf("\x1b[0m");
 }
 
 #define HEXSTR "0123456789abcdef"
 static void print_hex_line(uint8_t *data, unsigned size, char prepend) {
     if (!size)
         return;
+    if (prepend == '-' && color_enabled)
+        printf("\x1b[31m");
+    else if (prepend == '+' && color_enabled)
+        printf("\x1b[32m");
     putchar(prepend);
     unsigned i = 0;
     while (i < size - 1) {
@@ -53,6 +62,8 @@ static void print_hex_line(uint8_t *data, unsigned size, char prepend) {
     putchar(HEXSTR[data[i] >> 4]);
     putchar(HEXSTR[data[i] & 0xf]);
     putchar('\n');
+    if (prepend != ' ' && color_enabled)
+        printf("\x1b[0m");
 }
 
 static long min(long a, long b) {
