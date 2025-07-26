@@ -14,8 +14,10 @@
 # 屏幕截图
 
 ## exediff
+<img width="1072" height="823" alt="exediff" src="https://github.com/user-attachments/assets/2cb19edd-2968-4815-ab21-7b22b8a0cb8c" />
 
 ## exepatch
+<img width="1636" height="243" alt="exepatch" src="https://github.com/user-attachments/assets/cbfeda14-d26e-4add-8c76-f84642bcbb89" />
 
 # Credit
 特别致谢 Kimi
