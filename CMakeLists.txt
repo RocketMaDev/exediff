@@ -7,6 +7,7 @@ project(exe_tools
 
 # 2. 选项开关：-DDEBUG=0/1/2
 set(DEBUG 0 CACHE STRING "Debug level 0/1/2")
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 if(DEBUG STREQUAL "1")
     set(CMAKE_BUILD_TYPE RelWithDebInfo)
 elseif(DEBUG STREQUAL "2")

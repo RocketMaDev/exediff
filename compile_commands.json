@@ -1,56 +1,80 @@
 [
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-I./include",
-      "-fpie",
-      "-fstack-protector",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-c",
-      "-o",
-      "build/exediff.c.o",
-      "src/exediff.c"
-    ],
-    "directory": "/home/dbgbgtf/Main/work/exediff",
-    "file": "/home/dbgbgtf/Main/work/exediff/src/exediff.c",
-    "output": "/home/dbgbgtf/Main/work/exediff/build/exediff.c.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-I./include",
-      "-fpie",
-      "-fstack-protector",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-c",
-      "-o",
-      "build/rx.c.o",
-      "src/rx.c"
-    ],
-    "directory": "/home/dbgbgtf/Main/work/exediff",
-    "file": "/home/dbgbgtf/Main/work/exediff/src/rx.c",
-    "output": "/home/dbgbgtf/Main/work/exediff/build/rx.c.o"
-  },
-  {
-    "arguments": [
-      "/usr/bin/gcc",
-      "-I./include",
-      "-fpie",
-      "-fstack-protector",
-      "-Wall",
-      "-Wextra",
-      "-O2",
-      "-c",
-      "-o",
-      "build/disasm.c.o",
-      "src/disasm.c"
-    ],
-    "directory": "/home/dbgbgtf/Main/work/exediff",
-    "file": "/home/dbgbgtf/Main/work/exediff/src/disasm.c",
-    "output": "/home/dbgbgtf/Main/work/exediff/build/disasm.c.o"
-  }
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/asm.c.o -c /home/Rocket/tools/exediff/src/asm.c",
+  "file": "/home/Rocket/tools/exediff/src/asm.c",
+  "output": "CMakeFiles/common_objs.dir/src/asm.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/disasm.c.o -c /home/Rocket/tools/exediff/src/disasm.c",
+  "file": "/home/Rocket/tools/exediff/src/disasm.c",
+  "output": "CMakeFiles/common_objs.dir/src/disasm.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/hunk.c.o -c /home/Rocket/tools/exediff/src/hunk.c",
+  "file": "/home/Rocket/tools/exediff/src/hunk.c",
+  "output": "CMakeFiles/common_objs.dir/src/hunk.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/list.c.o -c /home/Rocket/tools/exediff/src/list.c",
+  "file": "/home/Rocket/tools/exediff/src/list.c",
+  "output": "CMakeFiles/common_objs.dir/src/list.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/rx.c.o -c /home/Rocket/tools/exediff/src/rx.c",
+  "file": "/home/Rocket/tools/exediff/src/rx.c",
+  "output": "CMakeFiles/common_objs.dir/src/rx.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/utils/bytes_or_asm.c.o -c /home/Rocket/tools/exediff/src/utils/bytes_or_asm.c",
+  "file": "/home/Rocket/tools/exediff/src/utils/bytes_or_asm.c",
+  "output": "CMakeFiles/common_objs.dir/src/utils/bytes_or_asm.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/utils/file_patch.c.o -c /home/Rocket/tools/exediff/src/utils/file_patch.c",
+  "file": "/home/Rocket/tools/exediff/src/utils/file_patch.c",
+  "output": "CMakeFiles/common_objs.dir/src/utils/file_patch.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/utils/hunks.c.o -c /home/Rocket/tools/exediff/src/utils/hunks.c",
+  "file": "/home/Rocket/tools/exediff/src/utils/hunks.c",
+  "output": "CMakeFiles/common_objs.dir/src/utils/hunks.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/utils/mmap.c.o -c /home/Rocket/tools/exediff/src/utils/mmap.c",
+  "file": "/home/Rocket/tools/exediff/src/utils/mmap.c",
+  "output": "CMakeFiles/common_objs.dir/src/utils/mmap.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/utils/read_file.c.o -c /home/Rocket/tools/exediff/src/utils/read_file.c",
+  "file": "/home/Rocket/tools/exediff/src/utils/read_file.c",
+  "output": "CMakeFiles/common_objs.dir/src/utils/read_file.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc  -I/home/Rocket/tools/exediff/include -I/usr/include/capstone -O3 -DNDEBUG -fpie -fstack-protector -Wall -Wextra -o CMakeFiles/common_objs.dir/src/utils/str.c.o -c /home/Rocket/tools/exediff/src/utils/str.c",
+  "file": "/home/Rocket/tools/exediff/src/utils/str.c",
+  "output": "CMakeFiles/common_objs.dir/src/utils/str.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc   -O3 -DNDEBUG -o CMakeFiles/exediff.dir/src/exediff.c.o -c /home/Rocket/tools/exediff/src/exediff.c",
+  "file": "/home/Rocket/tools/exediff/src/exediff.c",
+  "output": "CMakeFiles/exediff.dir/src/exediff.c.o"
+},
+{
+  "directory": "/home/Rocket/tools/exediff",
+  "command": "/usr/bin/cc   -O3 -DNDEBUG -o CMakeFiles/exepatch.dir/src/exepatch.c.o -c /home/Rocket/tools/exediff/src/exepatch.c",
+  "file": "/home/Rocket/tools/exediff/src/exepatch.c",
+  "output": "CMakeFiles/exepatch.dir/src/exepatch.c.o"
+}
 ]

@@ -2,3 +2,7 @@
 .gdb_history
 build/
 patch
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
