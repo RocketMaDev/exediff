@@ -1,68 +1,63 @@
-# 1. 声明最低版本与工程名
-cmake_minimum_required(VERSION 3.15)
-project(exe_tools
-        VERSION 1.0
-        DESCRIPTION "exediff & exepatch"
-        LANGUAGES C)
+cmake_minimum_required(VERSION 3.10)
+project(exediff_exepatch)
 
-# 2. 选项开关：-DDEBUG=0/1/2
-set(DEBUG 0 CACHE STRING "Debug level 0/1/2")
-set(CMAKE_EXPORT_COMPILE_COMMANDS on)
-if(DEBUG STREQUAL "1")
-    set(CMAKE_BUILD_TYPE RelWithDebInfo)
-elseif(DEBUG STREQUAL "2")
-    set(CMAKE_BUILD_TYPE Debug)
+# Set C standard
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# Define directories
+set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
+set(INC_DIR "${CMAKE_SOURCE_DIR}/include")
+set(BUILD_DIR "${CMAKE_BINARY_DIR}")
+
+# Include directories
+include_directories(${INC_DIR})
+
+# Find all C source files except exediff.c and exepatch.c
+file(GLOB_RECURSE ALL_C_SRCS "${SRC_DIR}/*.c")
+list(REMOVE_ITEM ALL_C_SRCS "${SRC_DIR}/exediff.c" "${SRC_DIR}/exepatch.c")
+
+# Set common compile flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpie -fstack-protector -Wall -Wextra")
+
+# Set common link flags
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z now -z noexecstack -fpie -fstack-protector")
+
+# Handle DEBUG options
+if(DEFINED DEBUG)
+    if(DEBUG EQUAL 1)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g -O2")
+    elseif(DEBUG EQUAL 2)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -g")
+    endif()
 else()
-    set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O2")
 endif()
 
-# 3. 找依赖
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(CAPSTONE REQUIRED capstone)
-pkg_check_modules(ELF REQUIRED libelf)
-pkg_check_modules(KEYSTONE REQUIRED keystone)
+# Find required libraries
+find_library(CAPSTONE_LIB capstone REQUIRED)
+find_library(ELF_LIB elf REQUIRED)
+find_library(KEYSTONE_LIB keystone REQUIRED)
 
-# 4. 定义路径变量（与 Makefile 对应）
-set (CMAKE_SOURCE_DIR .)
-set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
-set(INC_DIR ${CMAKE_SOURCE_DIR}/include)
-set(BUILD_DIR ${CMAKE_BINARY_DIR}/build)   # 实际用不到，CMake 自动生成
+# Create exediff executable
+if(EXISTS "${SRC_DIR}/exediff.c")
+    add_executable(exediff ${ALL_C_SRCS} "${SRC_DIR}/exediff.c")
+    target_link_libraries(exediff ${CAPSTONE_LIB} ${ELF_LIB} ${KEYSTONE_LIB})
+endif()
 
-# 5. 收集源文件
-file(GLOB_RECURSE C_SRCS
-     LIST_DIRECTORIES false
-     CONFIGURE_DEPENDS
-     ${SRC_DIR}/*.c)
+# Create exepatch executable
+if(EXISTS "${SRC_DIR}/exepatch.c")
+    add_executable(exepatch ${ALL_C_SRCS} "${SRC_DIR}/exepatch.c")
+    target_link_libraries(exepatch ${CAPSTONE_LIB} ${ELF_LIB} ${KEYSTONE_LIB})
+endif()
 
-# 去掉两个主程序
-list(REMOVE_ITEM C_SRCS ${SRC_DIR}/exediff.c ${SRC_DIR}/exepatch.c)
+# Set output directory for executables
+set_target_properties(exediff exepatch PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR}
+)
 
-# 6. 创建通用对象库（对应 $(OBJS)）
-add_library(common_objs OBJECT ${C_SRCS})
-target_include_directories(common_objs PUBLIC ${INC_DIR})
-target_compile_options(common_objs PUBLIC
-        -fpie -fstack-protector -Wall -Wextra)
-target_link_libraries(common_objs PUBLIC
-        ${CAPSTONE_LIBRARIES} ${ELF_LIBRARIES} ${KEYSTONE_LIBRARIES})
-target_include_directories(common_objs PUBLIC
-        ${CAPSTONE_INCLUDE_DIRS} ${ELF_INCLUDE_DIRS} ${KEYSTONE_INCLUDE_DIRS})
-
-# 7. 两个可执行文件
-add_executable(exediff ${SRC_DIR}/exediff.c $<TARGET_OBJECTS:common_objs>)
-add_executable(exepatch ${SRC_DIR}/exepatch.c $<TARGET_OBJECTS:common_objs>)
-
-# 8. 把可执行文件输出到 build 目录（与 Makefile 的 mv 行为一致）
-set_target_properties(exediff exepatch
-        PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
-
-# 9. 链接选项
-foreach(tgt exediff exepatch)
-    target_link_options(${tgt} PRIVATE
-        -z now -z noexecstack -fpie -fstack-protector)
-    target_link_libraries(${tgt} PRIVATE
-        ${CAPSTONE_LIBRARIES} ${ELF_LIBRARIES} ${KEYSTONE_LIBRARIES})
-endforeach()
-
-# 10. 伪目标：clean（CMake 自带，无需写）
-# 若需要自定义 `make clean`，可
-# add_custom_target(clean-all COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR})
+# Custom clean target (CMake handles this automatically, but kept for reference)
+# Use: make clean or ninja clean
