@@ -158,14 +158,19 @@ void handle_delta(mmap_file *old_file, mmap_file *new_file) {
             }
             handle_normal(&old, &new);
             old.start = old.end, new.start = new.end;
-            if (old.arr[old.cursor] < new.arr[new.cursor]) {
+            assert(old.cursor < old.size || new.cursor < new.size);
+            if (new.cursor >= new.size ||
+                (old.cursor < old.size && old.arr[old.cursor] < new.arr[new.cursor])) {
                 old.bot = old.arr[old.cursor++] - CTX;
                 diff = old.bot - old.top;
                 old.end = old.cursor;
                 old.top = min(old.file_len, old.bot + 2 * CTX + 1);
                 new.bot = min(new.file_len, new.top + diff);
                 new.top = min(new.file_len, new.bot + 2 * CTX + 1);
-            } else if (old.arr[old.cursor] > new.arr[new.cursor]) {
+                // clang-format off
+            } else if (old.cursor >= old.size ||                     // we don't need to check whether
+                       old.arr[old.cursor] > new.arr[new.cursor]) {  // old.cursor is valid as we've checked
+                // clang-format on
                 new.bot = new.arr[new.cursor++] - CTX;
                 diff = new.bot - new.top;
                 new.end = new.cursor;

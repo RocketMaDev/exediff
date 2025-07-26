@@ -17,6 +17,7 @@
 
 #include "hunk.h"
 #include "list.h"
+#include "minmax.h"
 
 /* Configuration for snake optimization */
 #define SNAKE_LIMIT 20           /* Minimum snake length to be considered "big" */
@@ -403,10 +404,12 @@ int main(int argc, char *argv[]) {
     list_sort(deleted);
     list_sort(inserted);
 
-    // for (unsigned i = 0; i < inserted->size; i++)
-    //     printf("DELETED: %u, %lx [%02x]\tINSERTED: %u, %lx [%02x]\n",
-    //            i, deleted->array[i], current_diff.files[0].data[deleted->array[i]],
-    //            i, inserted->array[i], current_diff.files[1].data[inserted->array[i]]);
+    // for (unsigned i = 0; i < MAX(inserted->size, deleted->size); i++)
+    //     printf("%u \tDELETED: %#5lx [%02x]\tINSERTED: %#5lx [%02x]\n", i,
+    //            i < deleted->size ? deleted->array[i] : 0,
+    //            i < deleted->size ? current_diff.files[0].data[deleted->array[i]] : 0,
+    //            i < inserted->size ? inserted->array[i] : 0,
+    //            i < inserted->size ? current_diff.files[1].data[inserted->array[i]] : 0);
 
     mmap_file old_file = {current_diff.files[0].data, current_diff.files[0].size};
     mmap_file new_file = {current_diff.files[1].data, current_diff.files[1].size};
