@@ -9,3 +9,5 @@ cmake_install.cmake
 compile_commands.json
 exediff
 exepatch
+core.*
+afl/output/
