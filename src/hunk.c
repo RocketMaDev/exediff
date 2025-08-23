@@ -13,7 +13,7 @@
 
 list *deleted;
 list *inserted;
-extern bool color_enabled;
+bool color_enabled = false;
 
 typedef struct {
     // offset cursors

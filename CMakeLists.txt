@@ -15,8 +15,23 @@ set(BUILD_DIR "${CMAKE_BINARY_DIR}")
 include_directories(${INC_DIR})
 
 # Find all C source files except exediff.c and exepatch.c
-file(GLOB_RECURSE ALL_C_SRCS "${SRC_DIR}/*.c")
-list(REMOVE_ITEM ALL_C_SRCS "${SRC_DIR}/exediff.c" "${SRC_DIR}/exepatch.c")
+set(ALL_C_FILES
+    hunk.c
+    list.c
+    disasm.c
+    asm.c
+    rx.c
+    utils/mmap.c
+    utils/read_file.c
+    utils/str.c
+    utils/file_patch.c
+    utils/bytes_or_asm.c
+    utils/hunks.c
+)
+set(ALL_C_SRCS "")
+foreach(fname ${ALL_C_FILES})
+    list(APPEND ALL_C_SRCS "${SRC_DIR}/${fname}")
+endforeach()
 
 # Set common compile flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpie -fstack-protector -Wall -Wextra")
@@ -38,7 +53,7 @@ else()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O2")
 endif()
 
-# Find required libraries
+# # Find required libraries
 find_library(CAPSTONE_LIB capstone REQUIRED)
 find_library(ELF_LIB elf REQUIRED)
 find_library(KEYSTONE_LIB keystone REQUIRED)

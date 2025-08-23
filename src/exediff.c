@@ -352,7 +352,7 @@ cleanup:
     return result;
 }
 
-bool color_enabled = false;
+extern bool color_enabled;
 /* Main function */
 int main(int argc, char *argv[]) {
     bool verbose = false;
