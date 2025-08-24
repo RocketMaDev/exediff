@@ -35,18 +35,32 @@ void copy_until_hunk(uint64_t patch_from_addr, uint64_t patch_to_addr) {
 
 #define SLIDE_WINDOW 3
 int32_t slide_match(uint64_t patch_from_addr, char patch_from_bytes[],
-                    uint64_t patch_from_len) {
-    for (int32_t i = -SLIDE_WINDOW; i < SLIDE_WINDOW; i++)
-        if (memmem(patch_from->file_buf + patch_from_addr + i, patch_from_len,
+                    uint64_t patch_from_len, uint64_t filesz) {
+    uint64_t min_where;
+    uint64_t max_where;
+
+    if ((int64_t)(patch_from_addr - SLIDE_WINDOW) < 0)
+        min_where = 0;
+    else
+        min_where = patch_from_addr - SLIDE_WINDOW;
+
+    if (filesz - patch_from_len < (patch_from_addr + SLIDE_WINDOW))
+        max_where = filesz - patch_from_len;
+    else
+        max_where = patch_from_addr + SLIDE_WINDOW;
+
+    for (uint64_t i = min_where; i <= max_where; i++)
+        if (memmem(patch_from->file_buf + i, patch_from_len,
                    patch_from_bytes, patch_from_len))
-            return i;
+            return i - patch_from_addr;
     PEXIT(NO_MATCH_FOUND);
 }
 
 void replace_hunk(uint64_t patch_from_addr, uint64_t patch_to_addr,
                   char patch_from_bytes[], char patch_to_bytes[], uint64_t patch_from_len,
-                  uint64_t patch_to_len) {
-    int32_t offset = slide_match(patch_from_addr, patch_from_bytes, patch_from_len);
+                  uint64_t patch_to_len, uint64_t filesz) {
+    int32_t offset =
+        slide_match(patch_from_addr, patch_from_bytes, patch_from_len, filesz);
 
     memcpy(patch_to->file_buf + patch_to_addr + offset, patch_to_bytes, patch_to_len);
     patch_from_idx += patch_from_len;
