@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-bool init_patch(uint32_t filesz, char *patch_to);
+bool init_patch(uint64_t filesz, char *patch_to);
 
 void copy_until_hunk(uint64_t patch_from_addr, uint64_t patch_to_addr);
 

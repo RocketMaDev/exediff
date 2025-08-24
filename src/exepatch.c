@@ -17,7 +17,7 @@
 #include "read_file.h"
 #include "str.h"
 
-void copy_orig_file(char *file_name, uint32_t filesz) {
+void copy_orig_file(char *file_name, uint64_t filesz) {
     uint32_t file_name_len = strlen(file_name);
     char *file_name_orig = malloc(file_name_len + strlen(".orig"));
     if (file_name_orig == NULL)
@@ -36,7 +36,7 @@ void copy_orig_file(char *file_name, uint32_t filesz) {
     close(store);
 }
 
-uint32_t get_patch_to(char *file_name, bool *has_file) {
+uint64_t get_patch_to(char *file_name, bool *has_file) {
     int fd = open(file_name, O_RDONLY);
     if (fd == -1)
         PERROR("open");
@@ -56,7 +56,7 @@ uint32_t get_patch_to(char *file_name, bool *has_file) {
     return filesz;
 }
 
-void resolve_hunks(char *hunk_line, uint32_t filesz) {
+void resolve_hunks(char *hunk_line, uint64_t filesz) {
     uint32_t patch_from_addr = hunk_patch_from_addr(hunk_line);
     uint32_t patch_from_expect_len = hunk_patch_from_len(hunk_line);
     uint32_t patch_to_addr = hunk_patch_to_addr(hunk_line);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
 
     char *line = NULL;
     bool has_file = false;
-    uint32_t filesz = 0;
+    uint64_t filesz = 0;
 
     while (fget_line(&line) != (uint64_t)-1)
         if (start_with(line, "--- "))

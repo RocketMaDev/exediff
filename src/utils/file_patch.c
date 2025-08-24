@@ -1,5 +1,4 @@
 #include "file_patch.h"
-
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -18,7 +17,7 @@ uint32_t patch_from_idx = 0;
 
 char *patch_to_name = NULL;
 
-bool init_patch(uint32_t filesz, char *file_name) {
+bool init_patch(uint64_t filesz, char *file_name) {
     patch_to = init_mmap_anoy(filesz + (0x2000 - (filesz % 0x1000)));
     patch_from = init_mmap_file(file_name);
 
