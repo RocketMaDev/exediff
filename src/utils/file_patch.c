@@ -36,20 +36,20 @@ void copy_until_hunk(uint64_t patch_from_addr, uint64_t patch_to_addr) {
 #define SLIDE_WINDOW 3
 int32_t slide_match(uint64_t patch_from_addr, char patch_from_bytes[],
                     uint64_t patch_from_len, uint64_t filesz) {
-    uint64_t min_where;
-    uint64_t max_where;
+    uint64_t min;
+    uint64_t max;
 
     if ((int64_t)(patch_from_addr - SLIDE_WINDOW) < 0)
-        min_where = 0;
+        min = 0;
     else
-        min_where = patch_from_addr - SLIDE_WINDOW;
+        min = patch_from_addr - SLIDE_WINDOW;
 
     if (filesz - patch_from_len < (patch_from_addr + SLIDE_WINDOW))
-        max_where = filesz - patch_from_len;
+        max = filesz - patch_from_len;
     else
-        max_where = patch_from_addr + SLIDE_WINDOW;
+        max = patch_from_addr + SLIDE_WINDOW;
 
-    for (uint64_t i = min_where; i <= max_where; i++)
+    for (uint64_t i = min; i <= max; i++)
         if (memmem(patch_from->file_buf + i, patch_from_len,
                    patch_from_bytes, patch_from_len))
             return i - patch_from_addr;
